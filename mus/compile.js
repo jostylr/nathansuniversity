@@ -18,8 +18,10 @@ var arrayNotes = function (arrnotes, justnotes, time) {
             time = (time > temptime) ? time : temptime; 
           }
         } else {
-          justnotes.push(cur);
-          cur.start = time;
+          if (cur.tag === 'note') {
+            justnotes.push(cur);
+            cur.start = time;
+          }
           time += cur.dur;
         }
     }

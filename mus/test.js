@@ -5,7 +5,16 @@ var melody_mus =
       left: 
        { tag: 'seq',
          left: { tag: 'note', pitch: 'a4', dur: 250 },
-         right: { tag: 'note', pitch: 'b4', dur: 250 } },
+         right: {
+           tag : 'par',
+           left : { tag: 'note', pitch: 'b4', dur: 250 },
+           right : {
+             tag : 'seq',
+              left : {tag : 'note', pitch : 'g5', dur : 100},
+              right : {tag : 'rest', dur : 300}
+           }
+          }
+      },
       right:
        { tag: 'seq',
          left: { tag: 'repeat',
