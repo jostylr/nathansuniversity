@@ -61,7 +61,7 @@ var pitchMidi = function (pitch) {
 
 
 var makeNotes = function (musexpr, arrnote) {
-    var partop, temp;
+    var partop, temp, i , n;
     
     if (!musexpr) {
         return;
@@ -101,6 +101,13 @@ var makeNotes = function (musexpr, arrnote) {
         makeNotes(musexpr.right, temp);
       }
       
+    }
+    
+    if (musexpr.tag === 'repeat') {
+      n = musexpr.count;
+      for (i = 0; i < n; i += 1) {
+        makeNotes(musexpr.section, arrnote);
+      }
     }
     
     
