@@ -39,15 +39,12 @@ var clone = function (obj) {
   return ret;
 };
 
+
 var midibase = {
-    a : 33
-  , b : 35
-  , c : 24
-  , d : 26
-  , e : 28
-  , f : 29
-  , g : 31
+    a : 33, b : 35, c : 24, d : 26, e : 28, f : 29, g : 31
  };
+ 
+ 
 
 var pitchMidi = function (pitch) {
   var midi; 
