@@ -25,7 +25,7 @@ var longMus = (function (n) {
     
     return tree;
     
-} (100));
+} (1000));
 
 compile = require('./compile2.js')
 

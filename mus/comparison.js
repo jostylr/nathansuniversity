@@ -500,7 +500,7 @@ var longMus = (function (n) {
     
     return tree;
     
-} (1000));
+} (10000));
 
 
 var Benchmark = require('benchmark');
