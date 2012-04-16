@@ -199,6 +199,78 @@ var compile3 = (function () {
           var t0 = helper(time, result, expr.left);
           var t1 = helper(time, result, expr.right);
           // Take maximum of two parrelel pieces
+          return Math.max(t0, t1);  
+          
+
+        case 'repeat':
+          for(var i=expr.count-1; 0<=i; i--){
+            time = helper(time, result, expr.section);
+          }
+          return time;
+
+        case 'rest':
+          return time + expr.dur;
+
+        case 'note':
+          result.push(
+            { tag: 'note', pitch: convertPitch[expr.pitch], start: time, dur: expr.dur}
+          );
+          return time + expr.dur;
+
+        default:
+          return time;
+      }
+  };
+
+  /*
+    Converter for pitches
+  */
+  var convertPitch = (function () {
+    var midi, i, num, letter,
+        midibase = {a : 33, b : 35, c : 24, d : 26, e : 28, f : 29, g : 31}
+      , ret = {}
+
+
+     for (letter in midibase) {
+       for (i = 0; i < 10; i += 1) {
+         num = i-1
+         midi = midibase[letter] + num*12
+         ret[letter+i] = midi
+         ret[letter.toUpperCase()+i] = midi
+       }
+     }
+
+     return ret
+
+  } ())
+  
+  return compile;
+}())
+
+var compile4 = (function () {
+  var compile = function (musexpr) {
+      var result = [];
+      helper(0, result, musexpr);
+      return result;
+  };
+
+  /*
+    This helper function does two things at a time
+     - it appends the NOTE bytecode to the end of result
+     - it returns the ending time
+  */
+  var helper = function (time, result, expr) {
+      switch(expr.tag){
+
+        case 'seq':
+          //Take endtime as new start time
+          time = helper(time, result, expr.left);
+          return helper(time, result, expr.right);
+
+        case 'par':
+          var t0 = helper(time, result, expr.left);
+          var t1 = helper(time, result, expr.right);
+          // Take maximum of two parrelel pieces
           return t0>t1? t0 : t1;
           
 
@@ -274,8 +346,7 @@ var longMus = (function (n) {
     
     return tree;
     
-} (1000));
-
+} (10000));
 
 var Benchmark = require('benchmark');
 
@@ -290,6 +361,9 @@ suite
   })
   .add('pitch', function () { 
     compile3(longMus)
+  })
+  .add('pitch and ternary', function () { 
+    compile4(longMus)
   })
   
   .on('cycle', function(event, bench) {
