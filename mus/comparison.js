@@ -239,43 +239,7 @@ var compile1 = function (musexpr) {
     return ret;
 };
 
-var simple = {
-    tag : 'seq'
-  , left : {tag : 'note', pitch : 'a4', dur : 125}
-  , right : {tag : 'note', pitch : 'b9', dur : 250}
-}
 
-var repeat = {
-    tag : 'repeat'
-  , section : simple
-  , count : 3
-}
-
-var melody_mus = 
-    { tag: 'seq',
-      left: 
-       { tag: 'seq',
-         left: { tag: 'note', pitch: 'a4', dur: 250 },
-         right: {
-           tag : 'par',
-           left : { tag: 'note', pitch: 'b4', dur: 250 },
-           right : {
-             tag : 'seq',
-              left : {tag : 'note', pitch : 'g5', dur : 100},
-              right : {tag : 'rest', dur : 300}
-           }
-          }
-      },
-      right:
-       { tag: 'seq',
-         left: { tag: 'repeat',
-           section: { 
-             tag : 'seq', 
-             left : {tag: 'note', pitch: 'c4', dur: 250 },
-             right : { tag: 'rest',  dur: 500 }
-             }, 
-           count: 3 },
-         right: { tag: 'note', pitch: 'd4', dur: 500 } } };
 
 var compile3 = function (musexpr) {
     var result = [];
@@ -468,35 +432,116 @@ var compile5 = function(expr, midi_conversion) {
   return compiled_notes;
 };
 
+
+//testing
+var simple = {
+    tag : 'seq'
+  , left : {tag : 'note', pitch : 'a4', dur : 125}
+  , right : {tag : 'note', pitch : 'b9', dur : 250}
+}
+
+var repeat = {
+    tag : 'repeat'
+  , section : simple
+  , count : 3
+}
+
+var melody_mus = 
+    { tag: 'seq',
+      left: 
+       { tag: 'seq',
+         left: { tag: 'note', pitch: 'a4', dur: 250 },
+         right: {
+           tag : 'par',
+           left : { tag: 'note', pitch: 'b4', dur: 250 },
+           right : {
+             tag : 'seq',
+              left : {tag : 'note', pitch : 'g5', dur : 100},
+              right : {tag : 'rest', dur : 300}
+           }
+          }
+      },
+      right:
+       { tag: 'seq',
+         left: { tag: 'repeat',
+           section: { 
+             tag : 'seq', 
+             left : {tag: 'note', pitch: 'c4', dur: 250 },
+             right : { tag: 'rest',  dur: 500 }
+             }, 
+           count: 3 },
+         right: { tag: 'note', pitch: 'd4', dur: 500 } } 
+};
+
+var longMus = (function (n) {
+    var i = 0
+     , tree = {tag : 'seq', left: {}, right : {}}
+     , stack = [tree.left, tree.right]
+     , cur
+    ;
+
+     cur = stack.pop();
+     while (i < n && cur) {
+       cur.tag = 'seq';
+       cur.left = {};
+       cur.right = {};
+       stack.unshift(cur.right);
+       stack.unshift(cur.left);
+       cur = stack.pop();
+       i += 1;
+     }
+     
+     while (cur) {
+       cur.tag = "note";
+       cur.pitch = "c4";
+       cur.dur = 250;
+       cur = stack.pop();
+     }
+    
+    return tree;
+    
+} (1000));
+
+
 var Benchmark = require('benchmark');
 
 var suite = new Benchmark.Suite;
 
 suite
   .add('my recurse', function () {
-    compile1(simple)
-    compile1(repeat)
-    compile1(melody_mus)
+//    compile1(simple)
+//    compile1(repeat)
+//    compile1(melody_mus)
+    compile1(longMus)
   })
   .add('my nonrecurse', function () { //https://github.com/jostylr/nathansuniversity/tree/master/mus
-    compile2(simple)
-    compile2(repeat)
-    compile2(melody_mus)
+//    compile2(simple)
+//    compile2(repeat)
+//    compile2(melody_mus)
+    compile2(longMus)
+    
   })
   .add('mark recurse', function () { // https://github.com/MarkBiesheuvel/NathansUniversity/blob/master/lesson2/MUS%20compiler.js
-    compile3(simple)
-    compile3(repeat)
-    compile3(melody_mus)
+//    compile3(simple)
+//    compile3(repeat)
+//    compile3(melody_mus)
+    compile3(longMus)
+    
   })
   .add('non-recurse, ebb', function () { //https://github.com/ebb/nathanu/blob/master/hw2/mus.html
-    compile4(simple)
-    compile4(repeat)
-    compile4(melody_mus)
+//    compile4(simple)
+//    compile4(repeat)
+//    compile4(melody_mus)
+    compile4(longMus)
+    
   })
-  .add('n^2 recurse, davidk01', function () { //https://github.com/davidk01/NathansUniversityStuff/tree/master/mus_compiler
-    compile5(simple, true)
-    compile5(repeat, true)
-    compile5(melody_mus, true)
+  .add('n^2 recurse, davidk01', function () { //https://github.com/davidk01/NathansUniversityStuff/tree/master/mus_compiler 
+    //modified to deal with pitch conveniently
+//    compile5(simple, true)
+//    compile5(repeat, true)
+//    compile5(melody_mus, true)
+    compile5(longMus)
+    
   })
   
   .on('cycle', function(event, bench) {
