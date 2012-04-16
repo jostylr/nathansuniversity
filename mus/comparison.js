@@ -473,7 +473,7 @@ var melody_mus =
          right: { tag: 'note', pitch: 'd4', dur: 500 } } 
 };
 
-var longMus = (function (n) {
+var longMusWide = (function (n) {
     var i = 0
      , tree = {tag : 'seq', left: {}, right : {}}
      , stack = [tree.left, tree.right]
@@ -500,7 +500,36 @@ var longMus = (function (n) {
     
     return tree;
     
-} (10000));
+} (1000));
+
+var longMusDeep = (function (n) {
+    var i = 0
+     , tree = {tag : 'seq', left: {}, right : {}}
+     , stack = [tree.left, tree.right]
+     , cur
+    ;
+
+     cur = stack.pop();
+     while (i < n && cur) {
+       cur.tag = 'seq';
+       cur.left = {};
+       cur.right = { tag: 'note', pitch: 'd4', dur: 500 };
+       //stack.unshift(cur.right);
+       stack.unshift(cur.left);
+       cur = stack.pop();
+       i += 1;
+     }
+     
+     while (cur) {
+       cur.tag = "note";
+       cur.pitch = "c4";
+       cur.dur = 250;
+       cur = stack.pop();
+     }
+    
+    return tree;
+    
+} (1000));
 
 
 var Benchmark = require('benchmark');
@@ -509,38 +538,22 @@ var suite = new Benchmark.Suite;
 
 suite
   .add('my recurse', function () {
-//    compile1(simple)
-//    compile1(repeat)
-//    compile1(melody_mus)
-    compile1(longMus)
+    compile1(longMusWide)
   })
   .add('my nonrecurse', function () { //https://github.com/jostylr/nathansuniversity/tree/master/mus
-//    compile2(simple)
-//    compile2(repeat)
-//    compile2(melody_mus)
-    compile2(longMus)
+    compile2(longMusWide)
     
   })
   .add('mark recurse', function () { // https://github.com/MarkBiesheuvel/NathansUniversity/blob/master/lesson2/MUS%20compiler.js
-//    compile3(simple)
-//    compile3(repeat)
-//    compile3(melody_mus)
-    compile3(longMus)
+    compile3(longMusWide)
     
   })
   .add('non-recurse, ebb', function () { //https://github.com/ebb/nathanu/blob/master/hw2/mus.html
-//    compile4(simple)
-//    compile4(repeat)
-//    compile4(melody_mus)
-    compile4(longMus)
+    compile4(longMusWide)
     
   })
   .add('n^2 recurse, davidk01', function () { //https://github.com/davidk01/NathansUniversityStuff/tree/master/mus_compiler 
-    //modified to deal with pitch conveniently
-//    compile5(simple, true)
-//    compile5(repeat, true)
-//    compile5(melody_mus, true)
-    compile5(longMus)
+    compile5(longMusWide)
     
   })
   
@@ -552,6 +565,38 @@ suite
   })
   .run()
 
+suite = new Benchmark.Suite;
+
+console.log("DEEP")
+
+suite
+  .add('my recurse', function () {
+    compile1(longMusDeep)
+  })
+  .add('my nonrecurse', function () { //https://github.com/jostylr/nathansuniversity/tree/master/mus
+    compile2(longMusDeep)
+
+  })
+  .add('mark recurse', function () { // https://github.com/MarkBiesheuvel/NathansUniversity/blob/master/lesson2/MUS%20compiler.js
+    compile3(longMusDeep)
+
+  })
+  .add('non-recurse, ebb', function () { //https://github.com/ebb/nathanu/blob/master/hw2/mus.html
+    compile4(longMusDeep)
+
+  })
+  .add('n^2 recurse, davidk01', function () { //https://github.com/davidk01/NathansUniversityStuff/tree/master/mus_compiler 
+    compile5(longMusDeep)
+
+  })
+
+  .on('cycle', function(event, bench) {
+    console.log(String(bench));
+  })
+  .on('complete', function() {
+    console.log('Fastest is ' + this.filter('fastest').pluck('name'));
+  })
+  .run()
 
 
 /*
