@@ -46,7 +46,7 @@ var midibase = {
  
  
 
-var pitchMidi = function (pitch) {
+var pitchMidiF = function (pitch) {
   var midi; 
   var letter = pitch[0].toLowerCase();
   var num = pitch[1];
@@ -67,7 +67,7 @@ var makeNotes = function (musexpr, arrnote) {
     }
     if (musexpr.tag === 'note')  {
       temp = clone(musexpr);
-      temp.pitch = pitchMidi(temp.pitch);
+      temp.pitch = pitchMidiF(temp.pitch);
       arrnote.push(temp);
       return;
     }

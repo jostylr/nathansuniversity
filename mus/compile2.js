@@ -40,7 +40,6 @@ var compile = function (expr) {
             }
           break
           case 'done' : 
-            console.log(cur.time, cur.leftTime)
             temp = Math.max(cur.time, cur.leftTime)
             cur = stack.pop()
             if (cur) {cur.time = temp}
