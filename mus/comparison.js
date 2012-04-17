@@ -601,7 +601,7 @@ var longMusWide = (function (n) {
     
     return tree;
     
-} (1e4));
+} (1e5));
 
 var longMusDeep = (function (n) {
     var i = 0
@@ -630,7 +630,7 @@ var longMusDeep = (function (n) {
     
     return tree;
     
-} (1e4));
+} (1e5));
 
 
 var Benchmark = require('benchmark');
