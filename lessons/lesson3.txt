@@ -1,0 +1,101 @@
+3.1
+
+start =
+    upletter
+
+upletter =
+    [A-Z]
+    
+    
+3.2
+
+start =
+    countrycode
+
+countrycode =
+    first : [a-z] second : [a-z]
+    	{ return first + second; }
+    	
+3.3
+
+start =
+    word
+
+word = 
+    upper
+    / lower
+    
+upper = 
+    letters: [A-Z]+
+        {return letters.join("");}
+    
+lower = 
+    letters: [a-z]+
+        { return letters.join("");}
+
+
+3.4
+
+start =
+    wordlist
+
+wordlist =
+	wordspace+
+
+wordspace = 
+   w: word s: " "?
+   {console.log(w); return w;}
+
+word =
+	w : [a-z]+
+    {return w.join('');}
+    
+3.5
+start =
+    expression
+
+expression =
+	atom 
+    / "(" e: exprspace+ ")"
+    {return e}
+
+exprspace = 
+	e: expression " "?
+    {return e}
+
+validchar 
+ 	= [0-9a-zA-Z_?!+-=@#$%^&*/.]
+    
+atom = 
+	chars:validchar+
+        { return chars.join(""); }
+
+
+
+3.6
+start =
+    comma
+    
+comma = 
+	left : additive "," right : comma
+    	{return {tag : ",", left:left, right: right};}
+    / additive
+
+additive =
+    left:multiplicative "+" right:additive
+        { return {tag: "+", left:left, right:right}; }
+  / multiplicative
+
+multiplicative =
+    left:primary "*" right:multiplicative
+        { return {tag: "*", left:left, right:right}; }
+  / primary
+
+primary =
+    integer
+  / "(" r: comma ")"
+      { return r; }
+
+integer =
+    digits:[0-9]+
+        { return parseInt(digits.join(""), 10); }
