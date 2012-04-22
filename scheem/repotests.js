@@ -1,6 +1,8 @@
 /*globals module, require, console, exports*/
 
 var fs = require('fs');
+var nu = require('nodeunit');
+var load = require('./load');
 
 var pegjs = require('pegjs');
 
@@ -51,6 +53,7 @@ var parserTests = {
     test.deepEqual(par(ref), ["+", "1", "2", "f", ["x", "y", "z", ["quote", ["1", "2", "3"]]], "g", ["1", "2", "atome", "just", "kidding"]], "reference one");
     test.done();
   }
+  
 };
 
 var clone = function (obj) {
@@ -65,27 +68,40 @@ var clone = function (obj) {
 };
 
 
+var tests = {};
 
-makePar = function (fname, tname) {
-  var par = clone(parserTests);
+load(function (par, name) {    
+    var t = tests[name] = clone(parserTests);
 
-  par.setUp = function (cb) {
-    var scheem = pegjs.buildParser(fs.readFileSync(fname, "utf8"));
-
-    this.par = function (str, start) {
-      try {
-        return scheem.parse(str, start);
-      } catch (e) {
-        //console.log(e);
-        return undefined;
+    t.setUp = function (cb) {
+      this.par = par;
+      cb();
+    };
+    
+    try{
+    nu.runSuite(name, t, {}, function (a, b) {
+      var i
+        , count = 0
+        , failed = 0
+        , n = b.length
+        ;
+        
+      for (i = 0; i < n; i += 1 ){
+        count += 1;
+        if (b[i].failed() ) {
+          failed += 1;
+          //console.log(name, b[i].error);
+        }
       }
-    };  
-    cb();
-  };
-
-  exports[tname] = par;  
-};
-
-makePar("scheem.peg", "mine");
+      if (failed > 0) {
+        console.log(name, failed, "failed out of", count );
+      }
+    });
+  } catch (e) {
+    console.log(name, "error");
+  }
+  }, function () {
+    ;
+  });
 
 
