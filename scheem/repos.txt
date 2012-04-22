@@ -1,4 +1,4 @@
-https://raw.github.com/jostylr/nathansuniversity/master/scheem/scheem.pegjs
+https://raw.github.com/jostylr/nathansuniversity/master/scheem/scheem.peg
 https://raw.github.com/McLeopold/PL101/master/scheem/scheem.peg
 https://raw.github.com/arcanis/trivia.nathan-s-university/master/scheem/lib/grammar.peg
 !https://raw.github.com/tdieb/PL101/master/scheem/scheem.peg
@@ -17,3 +17,6 @@ https://raw.github.com/QWRp/PL101/master/scheem/scheem.peg
 !https://raw.github.com/lmpessoa-pl101/pl101/master/scheem/scheem.peg
 https://raw.github.com/SameDifference/pl101/master/peg/peg.js
 https://raw.github.com/aheaume/PL101/master/scheem/scheem.pegjs
+https://raw.github.com/skarab/nathansuniversity/master/scheem/scheem.pegjs
+!https://raw.github.com/honza/nathan-university/master/scheem/scheem.peg
+!https://raw.github.com/PatrixCR/PL101/master/scheem/scheem.peg
