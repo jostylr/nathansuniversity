@@ -1,0 +1,25 @@
+start = 
+  blocks
+  
+blocks = 
+  ":" a:"a" EOL b: blocks c:endrep
+  {return [a, b, c]}
+  / a:"a" EOL b: blocks
+  {return [a,b]}
+  / lines
+  
+  
+lines = 
+  line+
+
+line =
+    a: [a-z] EOL
+    {return a}
+  
+
+endrep =
+  s: ";"+
+  {return s.length}
+  
+EOL = 
+  [\n\r]

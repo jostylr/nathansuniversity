@@ -1,130 +1,114 @@
-// maybe some helper functions
-var arrayNotes = function (arrnotes, justnotes, time) {
-    var i;
-    var n = arrnotes.length;
-    var ii;
-    var nn; 
-    var cur;
-    var temptime;
-    var oldtime;
+
+// returns an object for midi conversion
+var pitchMidi = (function () {
+  var midi, i, num, letter,
+      midibase = {a : 33, b : 35, c : 24, d : 26, e : 28, f : 29, g : 31}
+    , ret = {}
     
-    for (i = 0; i < n; i += 1) {
-        cur = arrnotes[i];
-        if (cur.length) { //crappy array test
-          nn = cur.length;
-          oldtime = time;
-          for (ii = 0; ii < nn; ii += 1) {
-            temptime = arrayNotes(cur[ii], justnotes, oldtime); 
-            time = (time > temptime) ? time : temptime; 
-          }
-        } else {
-          if (cur.tag === 'note') {
-            justnotes.push(cur);
-            cur.start = time;
-          }
-          time += cur.dur;
-        }
-    }
-    return time;
-};
-
-var clone = function (obj) {
-  var ret = {};
-  var key; 
-  for (key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      ret[key] = obj[key];      
-    }
-  }
-  return ret;
-};
-
-
-var midibase = {
-    a : 33, b : 35, c : 24, d : 26, e : 28, f : 29, g : 31
- };
- 
- 
-
-var pitchMidiF = function (pitch) {
-  var midi; 
-  var letter = pitch[0].toLowerCase();
-  var num = pitch[1];
+   
+   for (letter in midibase) {
+     for (i = 0; i < 10; i += 1) {
+       num = i-1
+       midi = midibase[letter] + num*12
+       ret[letter+i] = midi
+       ret[letter.toUpperCase()+i] = midi
+     }
+   }
+   
+   return ret
   
-  num = num - 1; 
+} ())
+
+
+var compile = function (expr) {
+  var cur = {expr : expr, time : 0 }
+    , notes = []
+    , stack = []
+    , i = 1
   
-  midi = midibase[letter] + num*12; 
-
-  return midi;
+  while (cur) {
+    expr = cur.expr
+    switch (expr.tag) {
+      case 'par' : 
+        switch (cur.state) {
+          case 'right' : 
+            cur.state = 'done'
+            cur.leftTime = cur.time
+            if (expr.right) {
+              stack.push(cur)
+              cur = {expr : expr.right, time : cur.original}              
+            }
+          break
+          case 'done' : 
+            temp = Math.max(cur.time, cur.leftTime)
+            cur = stack.pop()
+            if (cur) {cur.time = temp}
+          break
+          default : //left
+            cur.state = 'right'
+            cur.original = cur.time
+            if (expr.left) {
+              stack.push(cur)
+              cur = {expr : expr.left, time : cur.time}
+            } 
+        }
+      break
+      case 'seq' :
+        switch (cur.state) {
+          case 'right' : 
+            cur.state = 'done'
+            if (expr.right) {
+              stack.push(cur)
+              cur = {expr : expr.right, time : cur.time}              
+            }
+          break
+          case 'done' : 
+            temp = cur.time
+            cur = stack.pop()
+            if (cur) {cur.time = temp}
+          break
+          default : //left
+            cur.state = 'right'
+            if (expr.left) {
+              stack.push(cur)
+              cur = {expr : expr.left, time : cur.time}
+            } 
+        }
+      break
+      case 'repeat' :
+        temp = cur.time
+        if (typeof cur.i === 'undefined') {
+          cur.i = 1
+          stack.push(cur)
+          cur = {expr : expr.section, time : temp}
+        } else if (cur.i < expr.count) {
+          cur.i += 1
+          stack.push(cur)
+          cur = {expr : expr.section, time : temp}
+        } else { //done
+          cur = stack.pop()
+          if (cur) { cur.time = temp }
+        }
+      break
+      case 'note' :
+        notes.push({tag : 'note', pitch : pitchMidi[expr.pitch], start : cur.time, dur : expr.dur })
+        cur = stack.pop()
+        if (cur) {cur.time += expr.dur}
+      break
+      case 'rest' :
+        cur = stack.pop()
+        if (cur) {cur.time += expr.dur}
+      break 
+      default : 
+        console.log("error", cur)
+    } //cur.tag
+    
+    
+    
   }
+  
+  return notes
+  
+}
 
-
-var makeNotes = function (musexpr, arrnote) {
-    var partop, temp, i , n;
-    
-    if (!musexpr) {
-        return;
-    }
-    if (musexpr.tag === 'note')  {
-      temp = clone(musexpr);
-      temp.pitch = pitchMidiF(temp.pitch);
-      arrnote.push(temp);
-      return;
-    }
-    
-    if (musexpr.tag === 'rest') {
-      arrnote.push(clone(musexpr));
-      return;      
-    }
-    
-    if (musexpr.tag === 'seq') {
-        if (musexpr.hasOwnProperty('left')) {
-            makeNotes(musexpr.left, arrnote);
-        }
-        if (musexpr.hasOwnProperty('right')) {
-            makeNotes(musexpr.right, arrnote);
-        }
-    }
-
-    if (musexpr.tag === 'par') {
-      partop = [];
-      arrnote.push(partop);
-      if (musexpr.hasOwnProperty('left')) {
-        temp = [];
-        partop.push(temp);
-        makeNotes(musexpr.left, temp);
-      }
-      if (musexpr.hasOwnProperty('right')) {
-        temp = [];
-        partop.push(temp);
-        makeNotes(musexpr.right, temp);
-      }
-      
-    }
-    
-    if (musexpr.tag === 'repeat') {
-      n = musexpr.count;
-      for (i = 0; i < n; i += 1) {
-        makeNotes(musexpr.section, arrnote);
-      }
-    }
-    
-    
-    return;
-    
-};
-
-var compile = function (musexpr) {
-    // your code here
-    if (! musexpr) {
-        return [];
-    }
-    var arrnote = [];
-    makeNotes(musexpr, arrnote);
-    
-    var ret = [];
-    arrayNotes(arrnote, ret, 0);
-    return ret;
-};
-
-module.exports = compile; 
+module.exports = compile

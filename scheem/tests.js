@@ -70,7 +70,12 @@ makePar = function (fname, tname) {
   var par = clone(parserTests);
 
   par.setUp = function (cb) {
-    var scheem = pegjs.buildParser(fs.readFileSync(fname, "utf8"));
+    try {
+      var scheem = pegjs.buildParser(fs.readFileSync(fname, "utf8")); 
+    } catch (e) {
+      console.log("parser failed", e);
+      throw e
+    }
 
     this.par = function (str, start) {
       try {

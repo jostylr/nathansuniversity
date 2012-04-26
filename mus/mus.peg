@@ -1,0 +1,194 @@
+{//initial javascript
+  var util = require('util');
+  var ui = function (name, a) {
+    console.log(name, util.inspect(a, false, null))
+  }
+var combine = function (blocks, last) {
+  var i, cur, ii, curline, nn
+    , n
+    , ret = {tag:"par", tree : []}
+    , toptree = ret.tree
+    ;
+        
+  if (blocks.length === 0) {
+    //last block only
+    if (last.length === 1) {
+      return last[0];
+    }
+    ret.tree = last;
+  } else {
+    blocks.push(last);
+    n = blocks.length
+    for (i = 0; i < n; i += 1){
+      cur = blocks[i];
+      nn = cur.length;
+      for (ii = 0; ii < nn; ii += 1) {
+        if (toptree[ii]) {
+          toptree[ii].tree.push(cur[ii]);
+        } else {
+          toptree[ii] = {tag:"seq", tree:[cur[ii]]};
+        }
+      }
+    }
+    // now we see if we can shorten any sequence
+    n = toptree.length;
+    for (i = 0; i < n; i += 1) {
+      if (toptree[i].tree.length === 1) {
+        toptree[i] = toptree[i].tree[0];
+      }
+    }
+    if (toptree.length === 1) {
+      ret = toptree[0];
+    }
+  }
+  
+  
+  return ret;
+  
+}
+}//end js prep
+
+//not done
+start =
+  _ b:blocks _
+  {return b}
+  
+blocks = 
+  // repeat sections
+  ":" _ a:(clef / time / key)* _ EOL b: blocks EOL* c:endrep EOL*
+  {return {tag:"repeat", content: {tag:"seq", tree: a.concat[b], count: c} } }
+  //having some stuff at beginning, but no repeat
+  /  a:(clef / time / key)* EOL b: blocks
+  { return {tag:"seq", tree: a.concat([b]) } }
+  //just lines
+  / b: seqblock c: blocks*
+  {return ( (c.length >0) ? {tag:"seq", tree: [c].unshift(b) } : b  ) }
+
+//a sequence of blocks. put them together so corresponding lines are seq, adjacent lines parallel
+seqblock = 
+  b: block* a: aline* l:lastline 
+  { return combine(b, a.concat(l))}
+
+lastline = 
+  s : seqline EOL*
+  {return s}
+
+
+  
+block =   
+  a :aline* EOL+  // aline ends with EOL so last line has EOL EOL
+  { return a}
+  
+aline = 
+  s :seqline EOL 
+  {return s}
+
+
+seqline = 
+  e: isp+
+  {return (e.length === 1) ? e[0] : {tag:"seq", tree: e} }
+
+isp = 
+  _ i: inline _
+  {return i}
+
+inline = 
+   smallpar / smallrepeat / key / time / clef / volume / notes 
+
+
+
+//Repeat
+smallrepeat = 
+  ":" e: seqline  num:endrep
+  {return {tag: "repeat", content:e , count: num}}
+
+endrep = 
+  s : ";"+ 
+  {return s.length+1}
+
+
+//Parallel
+smallpar = 
+  "[" e: seqline  p:parseq "]"
+  {return {tag: "par", tree: [e].concat(p)} }
+  / "[" n: notespace+ "]"
+  {return {tag: "par", tree: n}}
+  
+
+parseq = 
+  i :pardiv+
+  {return i}
+  
+pardiv = 
+  "|" i:inline
+  {return i}
+  
+
+//## Note blocks
+key = 
+ "{" _ flats: ("_" f :notes)? _ sharps: ("#" s:notes)?  _ "}"
+  {return {tag:"key", flats: f, sharps: s} }
+
+
+notes = 
+  t:notespace+
+  {return (t.length === 1) ? t[0] : {tag:"seq", tree: t} }
+  
+notespace = 
+   _ r: (note / rest) _
+   {return r}
+
+//## Near Terminals
+digit = 
+  d: [0-9]
+  {return parseInt(d)}
+  
+number = 
+  lead:[1-9] rest:[0-9]*
+  {return parseInt([lead].concat(rest).join("") )}
+
+rest = 
+  n: number "-"
+  {return {tag: "rest", dur : n} }
+  /
+  "-" n: number?
+  {return {tag: "rest", dur :  (n ? 1/n : 1)} }
+
+
+note = 
+  n: number p: [a-gA-G]
+  {return {tag: "note", pitch:p, dur : n} }
+  /
+  p:[a-gA-G] n: number?
+  {return {tag: "note", pitch : p, dur : (n ? 1/n : 1)} }
+  
+clef =
+  "&" d: digit
+  { return {tag : "clef", level: d} }
+
+time = 
+  "(" _ one: number _ "," _ beatnote: number _  "," _ bpm:number _ ")"
+  { return {tag :"time", one: one, beatnote:beatnote, bpm:bpm} }
+
+
+volume = 
+  "*" d :digit
+  {return {tag:"vol", lvl : d} }
+
+  
+//## IGNORES
+  
+_  =
+  ws* comment+ ws*
+  / ws*
+
+ws = 
+  [ \t]
+
+
+//EOL is significant so no consume
+comment = 
+  "//" [^\n\r]* 
+
+EOL = 
+  [\n\r]
