@@ -36,6 +36,11 @@ var parserTests = {
     test.deepEqual(par("%Trumpet", "instrument"), {tag:"instrument", name:"Trumpet"});
     test.done();
   }
+  , volume : function (test) {
+    var par = this.par;
+    test.deepEqual(par("*3", "volume"), {tag:"vol", lvl: 3});
+    test.done();
+   }
   , notes : function (test) {
     var par = this.par
     test.deepEqual(par("B", "note"), {tag:"note", pitch:"B", dur: 1}, "a");    
