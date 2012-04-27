@@ -1,0 +1,15 @@
+=: //Saints go marching in, http://www.8notes.com/scores/433.asp
+(4, 4, 120)&4{_B} %Trumpet>  fAB 4C -fAB 4C -fAB 2CAFA 4G
+
+(4, 4, 120)&3 %Trombone> 4- :-[EBg]-[EBg];;;;; -[DBA]-[DBA]
+
+(4, 4, 120)&2{_EBA} %Tuba> 4- :[Ee]-B-;;;;;; [Ff]-B-
+
+=====
+
+2- Ag 2f ff 2AC C 2B. 2- AB 2CAgg 4f~f
+
+:-[DBA]; :-[EBg]; :-[ED_g]; :-[ECA]; -[EC_A]-[ECA] :-[EBg]; :-[DBA]; :-[EBg]; [EBg]
+
+[Ff]-B :[Ee]-B-; :A-;;; :B-; :b-; :e-;; 2- 
+=;

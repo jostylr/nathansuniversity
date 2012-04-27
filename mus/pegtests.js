@@ -13,6 +13,17 @@ var parserTests = {
     test.deepEqual(par("&4", "clef"), {tag:"clef", level:"4"}, "&4");
     test.done();
   }
+  , key : function (test) {
+    var par = this.par;
+    test.deepEqual(par("{_ab}", "key"), { tag: 'key',
+      flats: 
+       [ { tag: 'seq',
+           tree: 
+            [ { tag: 'note', pitch: 'a', dur: 1 },
+              { tag: 'note', pitch: 'b', dur: 1 } ] } ],
+      sharps: [] }, "{_ab}")
+    test.done();
+  }
   , time: function (test) {
     var par = this.par;
     test.expect(2);
@@ -20,11 +31,23 @@ var parserTests = {
     test.deepEqual(par("( 3,  4, 160 )", "time"), {tag:"time", bpm: 160, beatnote:4, one:3}, "(3,  4, 160)");
     test.done();    
   }
+  , instrument : function (test) {
+    var par = this.par;
+    test.deepEqual(par("%Trumpet", "instrument"), {tag:"instrument", name:"Trumpet"});
+    test.done();
+  }
   , notes : function (test) {
     var par = this.par
-    test.expect(4);
     test.deepEqual(par("B", "note"), {tag:"note", pitch:"B", dur: 1}, "a");    
     test.deepEqual(par("a4", "note"), {tag:"note", pitch:"a", dur: 1/4}, "a4");
+    test.deepEqual(par("a4.", "notes"), {tag:"note", pitch:"a", dur: 1/4, dotted:1}, "a4.");
+    test.deepEqual(par("a~c2 ~4c ~  e", "notes"), 
+    { tag: 'slur',
+      tree: 
+       [ { tag: 'note', pitch: 'a', dur: 1 },
+         { tag: 'note', pitch: 'c', dur: 0.5 },
+         { tag: 'note', pitch: 'c', dur: 4 },
+         { tag: 'note', pitch: 'e', dur: 1 } ] }, "a~c2 ~4c ~  e");
     test.deepEqual(par("a4 3c", "notes"), {tag:"seq", tree: 
       [ { tag: 'note', pitch: 'a', dur: 0.25 },
         { tag: 'note', pitch: 'c', dur: 3 } ] }, "a4 3c");
@@ -90,48 +113,116 @@ var parserTests = {
   }
   , whole : function (test){
     var par = this.par;
-
-    test.deepEqual(par("ab"),
-    { tag: 'seq',
+    test.expect(5);
+    test.deepEqual(par("ab"), { tag: 'seq',
       tree: 
-       [ { tag: 'note', pitch: 'a', dur: 1 },
-         { tag: 'note', pitch: 'b', dur: 1 } ] }, "ab");
-   test.deepEqual(par("ab\n\ncd"),       
-    { tag: 'seq',
+       [ { tag: 'par',
            tree: 
             [ { tag: 'seq',
                 tree: 
                  [ { tag: 'note', pitch: 'a', dur: 1 },
-                   { tag: 'note', pitch: 'b', dur: 1 } ] },
-              { tag: 'seq',
+                   { tag: 'note', pitch: 'b', dur: 1 } ] } ] } ] }, "ab");
+                   
+                   
+                   
+    test.deepEqual(par("=:\nab\n=;;"),
+    { tag: 'seq',
+      tree: 
+       [ { tag: 'par', tree: [] },
+         { tag: 'repeat',
+           tree: 
+            [ { tag: 'par',
                 tree: 
-                 [ { tag: 'note', pitch: 'c', dur: 1 },
-                   { tag: 'note', pitch: 'd', dur: 1 } ] } ] });
-    test.deepEqual(par("(4,4,120)&4\nab\ncd\n\nA[BC]"),                
+                 [ { tag: 'seq',
+                     tree: 
+                      [ { tag: 'note', pitch: 'a', dur: 1 },
+                        { tag: 'note', pitch: 'b', dur: 1 } ] } ] } ],
+           count: 3 },
+         { tag: 'par', tree: [] } ] }, "=:\nab\n=;;");
+   test.deepEqual(par("ab\n\ncd"),    
+   { tag: 'seq',
+     tree: 
+      [ { tag: 'par',
+          tree: 
+           [ { tag: 'seq',
+               tree: 
+                [ { tag: 'note', pitch: 'a', dur: 1 },
+                  { tag: 'note', pitch: 'b', dur: 1 } ] },
+             { tag: 'seq',
+               tree: 
+                [ { tag: 'note', pitch: 'c', dur: 1 },
+                  { tag: 'note', pitch: 'd', dur: 1 } ] } ] } ] }, "ab\n\ncd");
+  test.deepEqual(par("(4,4,120)&4>ab\ncd\n=\nA[BC]"),                
+  { tag: 'seq',
+    tree: 
+     [ { tag: 'par',
+         tree: 
+          [ { tag: 'seq',
+              tree: 
+               [ { tag: 'clef', level: 4 },
+                 { tag: 'time', one: 4, beatnote: 4, bpm: 120 },
+                 { tag: 'channel', num: 0 },
+                 { tag: 'note', pitch: 'a', dur: 1 },
+                 { tag: 'note', pitch: 'b', dur: 1 } ] },
             { tag: 'seq',
+              tree: 
+               [ { tag: 'note', pitch: 'c', dur: 1 },
+                 { tag: 'note', pitch: 'd', dur: 1 } ] } ] },
+       { tag: 'par',
+         tree: 
+          [ { tag: 'seq',
+              tree: 
+               [ { tag: 'clef', level: 4 },
+                 { tag: 'time', one: 4, beatnote: 4, bpm: 120 },
+                 { tag: 'channel', num: 0 },
+                 { tag: 'note', pitch: 'A', dur: 1 },
+                 { tag: 'par',
+                   tree: 
+                    [ { tag: 'note', pitch: 'B', dur: 1 },
+                      { tag: 'note', pitch: 'C', dur: 1 } ] } ] } ] } ] }, "(4,4,120)&4\nab\ncd\n\nA[BC]")
+    test.deepEqual(par("=:\n(4,4,120)>ab\n=\ncd\n=:\nab\n=;\ncd\n=;;"),              
+    { tag: 'seq',
+      tree: 
+       [ { tag: 'par', tree: [] },
+         { tag: 'repeat',
+           tree: 
+            [ { tag: 'par',
+                tree: 
+                 [ { tag: 'seq',
                      tree: 
                       [ { tag: 'time', one: 4, beatnote: 4, bpm: 120 },
-                        { tag: 'clef', level: 4 },
-                        { tag: 'par',
+                        { tag: 'channel', num: 0 },
+                        { tag: 'note', pitch: 'a', dur: 1 },
+                        { tag: 'note', pitch: 'b', dur: 1 } ] } ] },
+              { tag: 'par',
+                tree: 
+                 [ { tag: 'seq',
+                     tree: 
+                      [ { tag: 'time', one: 4, beatnote: 4, bpm: 120 },
+                        { tag: 'channel', num: 0 },
+                        { tag: 'note', pitch: 'c', dur: 1 },
+                        { tag: 'note', pitch: 'd', dur: 1 } ] } ] },
+              { tag: 'repeat',
+                tree: 
+                 [ { tag: 'par',
+                     tree: 
+                      [ { tag: 'seq',
                           tree: 
-                           [ { tag: 'seq',
-                               tree: 
-                                [ { tag: 'seq',
-                                    tree: 
-                                     [ { tag: 'note', pitch: 'a', dur: 1 },
-                                       { tag: 'note', pitch: 'b', dur: 1 } ] },
-                                  { tag: 'seq',
-                                    tree: 
-                                     [ { tag: 'note', pitch: 'A', dur: 1 },
-                                       { tag: 'par',
-                                         tree: 
-                                          [ { tag: 'note', pitch: 'B', dur: 1 },
-                                            { tag: 'note', pitch: 'C', dur: 1 } ] } ] } ] },
-                             { tag: 'seq',
-                               tree: 
-                                [ { tag: 'note', pitch: 'c', dur: 1 },
-                                  { tag: 'note', pitch: 'd', dur: 1 } ] } ] } ] }, "(4,4,120)&4\nab\ncd\n\nA[BC]")
-    test.deepEqual(par(":(4,4,120)\nab\n\ncd\n\n;;"), {})
+                           [ { tag: 'time', one: 4, beatnote: 4, bpm: 120 },
+                             { tag: 'channel', num: 0 },
+                             { tag: 'note', pitch: 'a', dur: 1 },
+                             { tag: 'note', pitch: 'b', dur: 1 } ] } ] } ],
+                count: 2 },
+              { tag: 'par',
+                tree: 
+                 [ { tag: 'seq',
+                     tree: 
+                      [ { tag: 'time', one: 4, beatnote: 4, bpm: 120 },
+                        { tag: 'channel', num: 0 },
+                        { tag: 'note', pitch: 'c', dur: 1 },
+                        { tag: 'note', pitch: 'd', dur: 1 } ] } ] } ],
+           count: 3 },
+         { tag: 'par', tree: [] } ] }, "=:\n(4,4,120)>ab\n=\ncd\n=:\nab\n=;\ncd\n=;;");
     test.done()
   }
 };

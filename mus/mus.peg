@@ -3,103 +3,132 @@
   var ui = function (name, a) {
     console.log(name, util.inspect(a, false, null))
   }
-var combine = function (blocks, last) {
-  var i, cur, ii, curline, nn
-    , n
-    , ret = {tag:"par", tree : []}
-    , toptree = ret.tree
-    ;
-        
-  if (blocks.length === 0) {
-    //last block only
-    if (last.length === 1) {
-      return last[0];
-    }
-    ret.tree = last;
-  } else {
-    blocks.push(last);
-    n = blocks.length
-    for (i = 0; i < n; i += 1){
-      cur = blocks[i];
-      nn = cur.length;
-      for (ii = 0; ii < nn; ii += 1) {
-        if (toptree[ii]) {
-          toptree[ii].tree.push(cur[ii]);
-        } else {
-          toptree[ii] = {tag:"seq", tree:[cur[ii]]};
-        }
-      }
-    }
-    // now we see if we can shorten any sequence
-    n = toptree.length;
-    for (i = 0; i < n; i += 1) {
-      if (toptree[i].tree.length === 1) {
-        toptree[i] = toptree[i].tree[0];
-      }
-    }
-    if (toptree.length === 1) {
-      ret = toptree[0];
+  
+var addLine = function(elem, j, tree, blocktag) {
+  var key;
+  //load settings to beginning of line
+  if (blocktag) {
+    elem.tree.unshift({tag:"channel", num: j});
+    for (key in blocktag) {
+      elem.tree.unshift(blocktag[key]);
     }
   }
-  
-  
-  return ret;
-  
+/*  if (tree[j]) {
+    tree[j].tree.push(elem);
+  } else {*/
+    tree[j] = elem; //{tag:"seq", tree:[elem]};
+  //}
+};
+
+
+// sequence each of the blocks and then in each block, each line is parallel
+// so each section will start at the same time
+// have defaults for each line  
+var combine = function (lines) {
+  var i, cur, ii, curline, nn, blocktag
+    , n
+    , ret = {tag:"seq", tree : [{tag:"par", tree: [] }]}
+    , trees = []
+    , tree = ret.tree[0].tree
+    , linesettings = []
+    , j = 0
+    , top = ret
+    , tops = []
+    , temp
+    ;
+
+    n = lines.length;
+    for (i = 0; i < n; i += 1) {
+      cur = lines[i];
+      switch (cur[0]) {
+        case "start repeat" :
+          tops.push(top);
+          temp = {tag:"repeat", tree: [{tag:"par", tree: []}]};
+          top.tree.push(temp);
+          top = temp;
+          tree = top.tree[0].tree;
+          j = 0;
+          
+        break;
+        case "end repeat" :
+          top.count = cur[1];
+          //nn = temp.length;
+          top = tops.pop(); //fall through intentional
+        case "break" :  
+          j=0;
+          temp = {tag:"par", tree : []};
+          top.tree.push(temp);
+          tree = temp.tree;
+        break;
+        case "setline" :
+          if (! linesettings[j]) {
+            linesettings[j] = blocktag = {}
+          }
+          nn = cur[1].length;
+          for (ii = 0; ii < nn; ii += 1) {
+            blocktag[cur[1][ii].tag] = cur[1][ii];
+          }
+          addLine(cur[2], j, tree, blocktag);
+          j += 1;
+        break;
+        case "line" :
+          addLine(cur[1], j, tree, linesettings[j]);
+          j += 1;
+        break;
+      }
+    
+    }
+    //ui("final", ret)
+    return ret;
 }
 }//end js prep
 
 //not done
 start =
-  _ b:blocks _
-  {return b}
+  (_ EOL)* _ ls: line+ _ (_ EOL)*
+  {return combine(ls)}
   
-blocks = 
+line = 
   // repeat sections
-  ":" _ a:(clef / time / key)* _ EOL b: blocks EOL* c:endrep EOL*
-  {return {tag:"repeat", content: {tag:"seq", tree: a.concat[b], count: c} } }
+  com ":" _ EOL*
+  {return ["start repeat" ]}
+  / com s: ";"+ _ EOL*
+  {return ["end repeat", s.length+1]}
   //having some stuff at beginning, but no repeat
-  /  a:(clef / time / key)* EOL b: blocks
-  { return {tag:"seq", tree: a.concat([b]) } }
+  / com EOL*
+  {return ["break"]}
   //just lines
-  / b: seqblock c: blocks*
-  {return ( (c.length >0) ? {tag:"seq", tree: [c].unshift(b) } : b  ) }
-
-//a sequence of blocks. put them together so corresponding lines are seq, adjacent lines parallel
-seqblock = 
-  b: block* a: aline* l:lastline 
-  { return combine(b, a.concat(l))}
-
-lastline = 
-  s : seqline EOL*
-  {return s}
-
-
+  / a: initset?  s: seqline EOL*
+  {return (a) ? ["setline", a, s]  : ["line", s] }
   
-block =   
-  a :aline* EOL+  // aline ends with EOL so last line has EOL EOL
-  { return a}
-  
-aline = 
-  s :seqline EOL 
-  {return s}
+com = 
+  _ "="+ _
 
+initset = 
+  a:(clef / time / key / volume / instrument)+ ">"
+  {return a}
 
 seqline = 
   e: isp+
+    {return (e.length === 1) ? e[0] : {tag:"seq", tree: e} }// {return {tag:"seq", tree: e} }
+
+multi = 
+  e: isp+
   {return (e.length === 1) ? e[0] : {tag:"seq", tree: e} }
+  
 
 isp = 
   _ i: inline _
   {return i}
 
 inline = 
-   smallpar / smallrepeat / key / time / clef / volume / notes 
+   smallpar / smallrepeat / key / time / clef / volume / instrument/ notes 
 
 
 
 //Repeat
 smallrepeat = 
-  ":" e: seqline  num:endrep
+  ":" e: multi  num:endrep
   {return {tag: "repeat", content:e , count: num}}
 
 endrep = 
@@ -109,7 +138,7 @@ endrep =
 
 //Parallel
 smallpar = 
-  "[" e: seqline  p:parseq "]"
+  "[" e: multi  p:parseq "]"
   {return {tag: "par", tree: [e].concat(p)} }
   / "[" n: notespace+ "]"
   {return {tag: "par", tree: n}}
@@ -126,17 +155,26 @@ pardiv =
 
 //## Note blocks
 key = 
- "{" _ flats: ("_" f :notes)? _ sharps: ("#" s:notes)?  _ "}"
-  {return {tag:"key", flats: f, sharps: s} }
+ "{" _  "_"? flats: notes* _ "#"? sharps: notes*  _ "}"
+  {return {tag:"key", flats: flats, sharps: sharps} }
 
 
 notes = 
-  t:notespace+
+  t: (slur / notespace)+
   {return (t.length === 1) ? t[0] : {tag:"seq", tree: t} }
   
 notespace = 
-   _ r: (note / rest) _
+   _ r: (notedot / note / rest) _
    {return r}
+
+slur = 
+ n: notespace ns: sln+
+ {return {tag: "slur", tree : [n].concat(ns)}}
+
+sln = 
+ "~" n: notespace
+ {return n}
+
 
 //## Near Terminals
 digit = 
@@ -155,24 +193,39 @@ rest =
   {return {tag: "rest", dur :  (n ? 1/n : 1)} }
 
 
+notedot = 
+  n: note d:"."+
+  {n.dotted = d.length; return n}
+
+// a_' is the same as A_.  returns as [a, -1, 1]
+octlet = 
+  up: "'"* n: [a-g] flats: "_"*  sharps: "#"* down:"'"*
+  {temp = [n, sharps.length - flats.length, up.length-down.length]; return (temp[1] || temp[2]) ? temp : temp[0]}
+  / up: "'"* n: [A-G] flats: "_"*  sharps: "#"* down:"'"*
+  {temp = [n, sharps.length - flats.length, up.length-down.length]; return (temp[1] || temp[2]) ? temp : temp[0]}
+
 note = 
-  n: number p: [a-gA-G]
+  n: number  p: octlet
   {return {tag: "note", pitch:p, dur : n} }
   /
-  p:[a-gA-G] n: number?
+  p:octlet n: number?
   {return {tag: "note", pitch : p, dur : (n ? 1/n : 1)} }
   
+instrument = 
+  _ "%" name:[a-zA-Z]+ _
+  {return {tag:"instrument", name: name.join("")} }
+  
 clef =
-  "&" d: digit
+  _ "&" d: digit _
   { return {tag : "clef", level: d} }
 
 time = 
-  "(" _ one: number _ "," _ beatnote: number _  "," _ bpm:number _ ")"
+  _ "(" _ one: number _ "," _ beatnote: number _  "," _ bpm:number _ ")" _
   { return {tag :"time", one: one, beatnote:beatnote, bpm:bpm} }
 
 
 volume = 
-  "*" d :digit
+  _ "*" d :digit _
   {return {tag:"vol", lvl : d} }
 
   

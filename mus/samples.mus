@@ -19,17 +19,17 @@ c.. dots add half the value of the prior. so c. is 1.5, c.. is 1.75, ...
 
 chords: [acb]   optional [ ab|c-|-f] parallel ab, c rest, rest f. No bars, all parallel
 
-c~4b is a c base note slurred to a b of length 4 times the base.
+c~4b is a c base note slurred to a b of length 4 times the base. c ~ 4b ~ d all slurred together
 
 lines next to each other are played in parallel. 2 newlines make a break. 
 
 
-=:(4, 4, 120)
-&4{_B}  fAB 4C -fAB 4C -fAB 2CAFA 4G
+=:
+(4, 4, 120)&4{_B}>  fAB 4C -fAB 4C -fAB 2CAFA 4G
 
-&3 4- :-[EBg]-[EBg];;;;; -[DBA]-[DBA]
+(4, 4, 120)&3> 4- :-[EBg]-[EBg];;;;; -[DBA]-[DBA]
 
-&2{_EBA} 4- :[Ee]-B-;;;;;; [Ff]-B-
+(4, 4, 120)&2{_EBA}> 4- :[Ee]-B-;;;;;; [Ff]-B-
 
 =====
 
@@ -38,4 +38,4 @@ lines next to each other are played in parallel. 2 newlines make a break.
 :-[DBA]; :-[EBg]; :-[ED_g]; :-[ECA]; -[EC_A]-[ECA] :-[EBg]; :-[DBA]; :-[EBg]; [EBg]
 
 [Ff]-B :[Ee]-B-; f-f-f-f-e-e-c-c-d-d-d- 2-
-=;;;
+=;
