@@ -129,7 +129,7 @@ inline =
 //Repeat
 smallrepeat = 
   ":" e: multi  num:endrep
-  {return {tag: "repeat", content:e , count: num}}
+  {return {tag: "repeat", tree:e , count: num}}
 
 endrep = 
   s : ";"+ 

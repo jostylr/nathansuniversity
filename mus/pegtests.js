@@ -84,7 +84,7 @@ var parserTests = {
     var par = this.par;
     test.expect(2);
     test.deepEqual(par(":A-a;;", "smallrepeat"), { tag: 'repeat',
-      content: 
+      tree: 
        { tag: 'seq',
          tree: 
           [ { tag: 'note', pitch: 'A', dur: 1 },
@@ -93,7 +93,7 @@ var parserTests = {
       count: 3 }
     , ":A-a;;");
     test.deepEqual(par(":[ABC] :ab; ;;", "smallrepeat"), { tag: 'repeat',
-      content: 
+      tree: 
        { tag: 'seq',
          tree: 
           [ { tag: 'par',
@@ -102,7 +102,7 @@ var parserTests = {
                  { tag: 'note', pitch: 'B', dur: 1 },
                  { tag: 'note', pitch: 'C', dur: 1 } ] },
             { tag: 'repeat',
-              content: 
+              tree: 
                { tag: 'seq',
                  tree: 
                   [ { tag: 'note', pitch: 'a', dur: 1 },
