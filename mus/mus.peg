@@ -200,9 +200,9 @@ notedot =
 // a_' is the same as A_.  returns as [a, -1, 1]
 octlet = 
   up: "'"* n: [a-g] flats: "_"*  sharps: "#"* down:"'"*
-  {temp = [n, sharps.length - flats.length, up.length-down.length]; return (temp[1] || temp[2]) ? temp : temp[0]}
+  {temp = [n, sharps.length - flats.length, up.length-down.length]; return temp}
   / up: "'"* n: [A-G] flats: "_"*  sharps: "#"* down:"'"*
-  {temp = [n, sharps.length - flats.length, up.length-down.length]; return (temp[1] || temp[2]) ? temp : temp[0]}
+  {temp = [n.toLowerCase(), sharps.length - flats.length, up.length-down.length+1]; return temp }
 
 note = 
   n: number  p: octlet
