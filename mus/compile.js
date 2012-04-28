@@ -1,114 +1,66 @@
-
-// returns an object for midi conversion
-var pitchMidi = (function () {
-  var midi, i, num, letter,
-      midibase = {a : 33, b : 35, c : 24, d : 26, e : 28, f : 29, g : 31}
-    , ret = {}
-    
-   
-   for (letter in midibase) {
-     for (i = 0; i < 10; i += 1) {
-       num = i-1
-       midi = midibase[letter] + num*12
-       ret[letter+i] = midi
-       ret[letter.toUpperCase()+i] = midi
-     }
-   }
-   
-   return ret
-  
-} ())
-
-
-var compile = function (expr) {
-  var cur = {expr : expr, time : 0 }
-    , notes = []
-    , stack = []
-    , i = 1
-  
-  while (cur) {
-    expr = cur.expr
-    switch (expr.tag) {
-      case 'par' : 
-        switch (cur.state) {
-          case 'right' : 
-            cur.state = 'done'
-            cur.leftTime = cur.time
-            if (expr.right) {
-              stack.push(cur)
-              cur = {expr : expr.right, time : cur.original}              
-            }
-          break
-          case 'done' : 
-            temp = Math.max(cur.time, cur.leftTime)
-            cur = stack.pop()
-            if (cur) {cur.time = temp}
-          break
-          default : //left
-            cur.state = 'right'
-            cur.original = cur.time
-            if (expr.left) {
-              stack.push(cur)
-              cur = {expr : expr.left, time : cur.time}
-            } 
-        }
-      break
-      case 'seq' :
-        switch (cur.state) {
-          case 'right' : 
-            cur.state = 'done'
-            if (expr.right) {
-              stack.push(cur)
-              cur = {expr : expr.right, time : cur.time}              
-            }
-          break
-          case 'done' : 
-            temp = cur.time
-            cur = stack.pop()
-            if (cur) {cur.time = temp}
-          break
-          default : //left
-            cur.state = 'right'
-            if (expr.left) {
-              stack.push(cur)
-              cur = {expr : expr.left, time : cur.time}
-            } 
-        }
-      break
-      case 'repeat' :
-        temp = cur.time
-        if (typeof cur.i === 'undefined') {
-          cur.i = 1
-          stack.push(cur)
-          cur = {expr : expr.section, time : temp}
-        } else if (cur.i < expr.count) {
-          cur.i += 1
-          stack.push(cur)
-          cur = {expr : expr.section, time : temp}
-        } else { //done
-          cur = stack.pop()
-          if (cur) { cur.time = temp }
-        }
-      break
-      case 'note' :
-        notes.push({tag : 'note', pitch : pitchMidi[expr.pitch], start : cur.time, dur : expr.dur })
-        cur = stack.pop()
-        if (cur) {cur.time += expr.dur}
-      break
-      case 'rest' :
-        cur = stack.pop()
-        if (cur) {cur.time += expr.dur}
-      break 
-      default : 
-        console.log("error", cur)
-    } //cur.tag
-    
-    
+var pitch = function (pitch, clef) {
+  if (toString.call(pitch) !== '[object Array]') {
+    if (pitch)
+    return pitch+clef;
+  } else {
     
   }
-  
-  return notes
-  
 }
 
-module.exports = compile
+var compile = function(expr) {
+  var notes, i, e, estack, state, statestack, tsaved, max, swap;
+  max = {tag:"max"};
+  swap = {tag:"swap"};
+  estack = [expr];
+  state = {};
+  statestack = [];
+  notes = [];
+  t = 0;
+  while (estack.length > 0) {
+   e = estack.shift();
+   switch (e.tag) {
+   case "note":
+     notes.push({
+       tag: "note",
+       pitch: pitch(e.pitch, state.clef),
+       start: state.time,
+       dur: e.dur*state.durFactor
+     });
+     // fall through
+   case "rest":
+     t += e.dur;
+     break;
+   case "seq":
+     estack.concat(e.tree);
+     break;
+   case "par":
+     estack.push(e.tree[0]);
+     n = e.tree.length;
+     for (i = 1; i < n; i += 1){
+      estack.push(swap, e.tree[i]);
+     }
+     estack.push(max);
+     
+     tstack.push(t);
+     break;
+   case "max":
+     tsaved = tstack.pop();
+     t = t > tsaved ? t : tsaved; //max
+     break;
+   case "swap":
+     tsaved = tstack.pop();
+     tstack.push(t);
+     t = tsaved;
+     break;
+   case "repeat":
+     n = e.count; 
+     for (i = 0; i < n; i += 1) {
+       estack.concat(e.tree);
+     }
+     break;
+   default:
+     throw ["failuere in compile", e.tag, e];
+   }
+  }
+  return notes;
+};
