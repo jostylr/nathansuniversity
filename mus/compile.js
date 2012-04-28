@@ -1,10 +1,29 @@
 var pitch = function (pitch, clef) {
-  if (toString.call(pitch) !== '[object Array]') {
-    if (pitch)
-    return pitch+clef;
-  } else {
+  var sfnum = pitch[1]
+    , sf
+    , note = pitch[0]
+    , octave = pitch[2]
+    ;
     
+  if (sfnum<0) {
+    sf = "b";
+    while (sfnum < 0) {
+      pitch + "b";
+      sfnum += 1;
+    }
+  }  else if (sfnum > 0) {
+    sf = "#";
+    while (sfnum > 0) {
+      pitch + "#";
+      sfnum -= 1;
+    }
   }
+  
+  if (typeof clef === "undefined") {
+    clef = 4; //default clef
+  }
+  
+  
 }
 
 var compile = function(expr) {
