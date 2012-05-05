@@ -1,0 +1,188 @@
+4.1
+
+var evalScheem = function (expr) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1]) + evalScheem(expr[2]);
+        case '-':
+            return evalScheem(expr[1]) - evalScheem(expr[2]);
+        case '*':
+            return evalScheem(expr[1]) * evalScheem(expr[2]);
+        case '/':
+            return evalScheem(expr[1]) / evalScheem(expr[2]);
+
+    }
+};
+
+4.2
+
+var evalScheem = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    
+    // Strings are variable references
+    if (typeof expr === 'string') {
+        return env[expr];
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case '-':
+            return evalScheem(expr[1], env) -
+                   evalScheem(expr[2], env);
+        case '*':
+            return evalScheem(expr[1], env) *
+                   evalScheem(expr[2], env);
+        case '/':
+            return evalScheem(expr[1], env) /
+                   evalScheem(expr[2], env);
+    }
+};
+
+4.3
+
+var evalScheem = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Strings are variable references
+    if (typeof expr === 'string') {
+        return env[expr];
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case 'define' :
+            env[expr[1]] = evalScheem(expr[2], env);
+            return 0;
+        case 'set!' : 
+            env[expr[1]] = evalScheem(expr[2], env);            
+            return 0;
+    }
+};
+
+4.4
+
+var evalScheem = function (expr, env) {
+    var i, n;
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Strings are variable references
+    if (typeof expr === 'string') {
+        return env[expr];
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case 'set!' : 
+            env[expr[1]] = evalScheem(expr[2], env);            
+            return 0;
+        case 'begin' :
+            n = expr.length;
+            for (i = 1; i < n-1; i += 1) {
+                evalScheem(expr[i], env);
+            }
+            return evalScheem(expr[n-1], env);
+    }
+};
+
+4.5
+
+var evalScheem = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case 'quote' : 
+            return expr[1];
+    }
+};
+
+4.6
+
+var evalScheem = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case '<':
+            return (evalScheem(expr[1], env) < 
+                    evalScheem(expr[2], env)) ?
+                '#t' : '#f' ;
+    }
+};
+
+4.7
+
+var evalScheem = function (expr, env) {
+    var a;
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case 'quote':
+            return expr[1];
+        case 'cons':
+            a = evalScheem(expr[2], env);
+            a.unshift(evalScheem(expr[1], env));
+            console.log(a);
+            return a;
+        case 'car' :
+            return evalScheem(expr[1], env).shift();
+        case 'cdr' :
+            a = evalScheem(expr[1], env);
+            a.shift();
+            return a;
+    }
+};
+
+4.8
+
+var evalScheem = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    if (expr === 'error') throw('Error');
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '=':
+            var eq =
+                (evalScheem(expr[1], env) ===
+                 evalScheem(expr[2], env));
+            if (eq) return '#t';
+            return '#f';
+        case 'if':
+            return (evalScheem(expr[1], env) === '#t' ) ? 
+                evalScheem(expr[2], env) :
+                evalScheem(expr[3], env) ;
+    }
+};
