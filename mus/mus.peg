@@ -155,8 +155,8 @@ pardiv =
 
 //## Note blocks
 key = 
- "{" _  "_"? flats: notes* _ "#"? sharps: notes*  _ "}"
-  {return {tag:"key", flats: flats, sharps: sharps} }
+ "{" _  "_"? flats: [a-g]* _ "#"? sharps: [a-g]*  _ "}"
+  { return {tag:"key", flats: flats, sharps: sharps} }
 
 
 notes = 

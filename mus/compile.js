@@ -1,40 +1,58 @@
-var pitch = function (pitch, clef) {
-  var sfnum = pitch[1]
-    , sf
-    , note = pitch[0]
-    , octave = pitch[2]
-    ;
+//targeting jsmidgen:  https://github.com/dingram/jsmidgen/blob/master/lib/jsmidgen.js
+
+var pitch = function (pitch, clef, key) {
+  var sfnum, note, octave;
+    
+  if (typeof pitch === 'string') {
+    note = pitch.toLowerCase();
+    sfnum = 0;
+    octave = (pitch === note) ? 0 : 1;
+  } else {
+    note = pitch.toLowerCase();
+    sfnum = pitch[1];
+    octave = (pitch === note) ? pitch[2] : pitch[2] + 1;
+  }
+  
+  octave = key[note]+1;
     
   if (sfnum<0) {
-    sf = "b";
     while (sfnum < 0) {
-      pitch + "b";
+      note += "b";
       sfnum += 1;
     }
   }  else if (sfnum > 0) {
-    sf = "#";
     while (sfnum > 0) {
-      pitch + "#";
+      note += "#";
       sfnum -= 1;
     }
   }
   
-  if (typeof clef === "undefined") {
-    clef = 4; //default clef
+  //numbers should be added first then into string
+  note += clef + octave;
+  
+  return note;
+  
+};
+
+var makeKey = function (flats, sharps) {
+  var ret = {
+    'a' : 0
+    ,
   }
-  
-  
 }
+
 
 var compile = function(expr) {
   var notes, i, e, estack, state, statestack, tsaved, max, swap;
   max = {tag:"max"};
   swap = {tag:"swap"};
   estack = [expr];
-  state = {};
+  state = {t:0, 
+    clef : 4,
+    key : makeKey([], []);
+    };
   statestack = [];
   notes = [];
-  t = 0;
   while (estack.length > 0) {
    e = estack.shift();
    switch (e.tag) {
