@@ -5,13 +5,13 @@ var _ = require('underscore');
 var evalScheem = require('../evalScheem').evalScheem;
 
 
-module.exports.suites = { evalScheem : evalScheem};
+module.exports.suites = { 
+  add : evalScheem
+  , quote : evalScheem
+};
 
 
 //----
- var data = { evalScheem: 
-   { number: { inp: [ 3, {} ], out: 3 },
-     dog: { inp: [ [ 'quote', 'dog' ], {} ], out: 'dog' } } };
-if (module) {
- module.exports.data = data;
-}
+var data = {};
+   
+module.exports.data = data;
