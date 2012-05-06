@@ -1,0 +1,142 @@
+5.1
+
+Written for a dictionary of the form {x : 5, y : 6, ..., outer: env }
+
+var lookup = function (env, v) {
+    // Your code here
+    if (env.hasOwnProperty(v) ) {
+        return env[v];
+    } else {
+        if (env.outer) {
+            return lookup(env.outer, v);
+        } else {
+            return undefined;
+        }
+    }
+};
+
+
+Proper one that is asked for: 
+
+var lookup = function (env, v) {
+    // Your code here
+    if (env.name === v) {
+        return env.value;
+    } else {
+        if (env.outer) {
+            return lookup(env.outer, v);
+        } else {
+            return undefined;
+        }
+    }
+};
+
+5.2
+
+var evalScheem = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Strings are variable references
+    if (typeof expr === 'string') {
+        // New stuff here
+        return lookup(env, expr);
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case 'let-one':
+            // New stuff here
+            return evalScheem(expr[3], {
+                name : expr[1],
+                value : evalScheem(expr[2], env),
+                outer : env
+            });
+    }
+};
+
+5.3
+
+var update = function (env, v, val) {
+    // Your code here
+    if (env.name === v) {
+        env.value = val;
+    } else {
+        if (env.outer) {
+           update(env.outer, v, val);
+        } else {
+            return undefined;
+        }
+    }
+};
+
+5.4
+
+var evalScheem = function (expr, env) {
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    if (typeof expr === 'string') {
+        return lookup(env, expr);
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case 'quote':
+            return expr[1];
+        default:
+            // New stuff here
+            console.log(expr[0], env);
+            return lookup(env, expr[0])(evalScheem(expr[1], env));
+    }
+};
+
+5.5 
+
+var evalScheem = function (expr, env) {
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    if (typeof expr === 'string') {
+        return lookup(env, expr);
+    }
+    // Look at head of list for operation
+    switch (expr[0]) {
+        case '+':
+            return evalScheem(expr[1], env) +
+                   evalScheem(expr[2], env);
+        case 'lambda-one':
+            // New code here
+            return function (arg) {
+                return evalScheem(expr[2], {
+                    name: expr[1],
+                    value : arg,
+                    outer : env
+                });
+            };
+        default:
+            // Simple application
+            var func = evalScheem(expr[0], env);
+            var arg = evalScheem(expr[1], env);
+            return func(arg);
+    }
+};
+
+5.6
+
+var add_binding = function (env, v, val) {
+    // Your code here
+    env.outer = {
+        name: env.name,
+        value : env.value,
+        outer : env.outer
+    };
+    env.name = v;
+    env.value = val;
+};
+
