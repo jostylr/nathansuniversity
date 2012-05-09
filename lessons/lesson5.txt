@@ -114,7 +114,7 @@ var evalScheem = function (expr, env) {
             // New code here
             return function (arg) {
                 return evalScheem(expr[2], {
-                    name: expr[1],
+                    name  : expr[1],
                     value : arg,
                     outer : env
                 });
