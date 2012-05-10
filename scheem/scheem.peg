@@ -1,6 +1,6 @@
 start =
-    expression
-
+    e: expression+
+    { e.unshift('begin'); return e;}
 
 quote = 
   _ "'" _ e: expression
@@ -26,7 +26,7 @@ string =
     
 atom = 
 	chars:validchar+
-        { console.log(chars); return chars.join(""); }
+        {return chars.join(""); }
         
 
         
@@ -44,7 +44,6 @@ comment =
 // from js pegjs example  
 NumericLiteral "number"
   = literal:(HexIntegerLiteral / DecimalLiteral)  {
-      console.log(literal)
       return literal;
     }
 

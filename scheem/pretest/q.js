@@ -4,10 +4,6 @@ var _ = require('underscore');
 
 var evalScheem = require('../evalScheem').evalScheem;
 
-module.exports.ev = function () {
-  return evalScheem.apply(null, arguments);
-};
-
 //set this to {debugS:#} for debugging, use {env: 'x'} for getting a return value of the env.
 //----
 module.exports.suites = {

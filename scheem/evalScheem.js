@@ -3,6 +3,7 @@
 var _ = require('underscore');
 var util = require('util');
 
+var debugF;
 
 var initenv = function () {
   return {
@@ -167,7 +168,7 @@ var evalScheem = function (expr) {
     
     cur = stack.pop();
     
-    debugF(stack)
+    //debugF(stack)
         
     if (typeof cur === 'number') {
       values[0].push( cur );
@@ -223,7 +224,7 @@ var evalScheem = function (expr) {
           //values[0] should have f as the first and the arguments as the rest
           temp = values.shift();
           temp = temp[0]( temp.slice(1), stack, values, env );
-          if (temp) {
+          if (typeof temp !== "undefined") {
             //function returned, done
             values[0].push( temp ); //why is temp needed?
           } 

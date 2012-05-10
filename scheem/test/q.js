@@ -4,12 +4,8 @@ var _ = require('underscore');
 
 var evalScheem = require('../evalScheem').evalScheem;
 
-module.exports.ev = function () {
-  return evalScheem.apply(null, arguments);
-};
-
 //set this to {debugS:#} for debugging, use {env: 'x'} for getting a return value of the env.
-suites = {
+var suites = {
   add: function () {
     return evalScheem.apply(null, arguments);
   },
@@ -53,9 +49,7 @@ suites = {
     return evalScheem.apply(null, arguments);
   },
   let: function () {
-    return evalScheem.apply({
-      debugS: 5
-    }, arguments);
+    return evalScheem.apply(null, arguments);
   }
 };
 
@@ -89,7 +83,7 @@ test("one", function () {
   ]);
   var pass = _.isEqual(result, 2);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "2" + "\n     Input:  [ [ '+', 2 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "2" + "\n     Input:  [['+',2]]");
   }
 });
 
@@ -99,7 +93,7 @@ test("two", function () {
   ]);
   var pass = _.isEqual(result, 7);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "7" + "\n     Input:  [ [ '+', 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "7" + "\n     Input:  [['+',3,4]]");
   }
 });
 
@@ -109,7 +103,7 @@ test("three", function () {
   ]);
   var pass = _.isEqual(result, 12);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "12" + "\n     Input:  [ [ '+', 3, 4, 5 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "12" + "\n     Input:  [['+',3,4,5]]");
   }
 });
 
@@ -119,7 +113,7 @@ test("four", function () {
   ]);
   var pass = _.isEqual(result, 18);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "18" + "\n     Input:  [ [ '+', 3, 4, 5, 6 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "18" + "\n     Input:  [['+',3,4,5,6]]");
   }
 });
 
@@ -149,7 +143,7 @@ test("one", function () {
   ]);
   var pass = _.isEqual(result, -2);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "-2" + "\n     Input:  [ [ '-', 2 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "-2" + "\n     Input:  [['-',2]]");
   }
 });
 
@@ -159,7 +153,7 @@ test("two", function () {
   ]);
   var pass = _.isEqual(result, -1);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "-1" + "\n     Input:  [ [ '-', 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "-1" + "\n     Input:  [['-',3,4]]");
   }
 });
 
@@ -169,7 +163,7 @@ test("three", function () {
   ]);
   var pass = _.isEqual(result, -6);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "-6" + "\n     Input:  [ [ '-', 3, 4, 5 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "-6" + "\n     Input:  [['-',3,4,5]]");
   }
 });
 
@@ -179,7 +173,7 @@ test("four", function () {
   ]);
   var pass = _.isEqual(result, -12);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "-12" + "\n     Input:  [ [ '-', 3, 4, 5, 6 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "-12" + "\n     Input:  [['-',3,4,5,6]]");
   }
 });
 
@@ -209,7 +203,7 @@ test("one", function () {
   ]);
   var pass = _.isEqual(result, 2);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "2" + "\n     Input:  [ [ '*', 2 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "2" + "\n     Input:  [['*',2]]");
   }
 });
 
@@ -219,7 +213,7 @@ test("two", function () {
   ]);
   var pass = _.isEqual(result, 12);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "12" + "\n     Input:  [ [ '*', 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "12" + "\n     Input:  [['*',3,4]]");
   }
 });
 
@@ -229,7 +223,7 @@ test("three", function () {
   ]);
   var pass = _.isEqual(result, 60);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "60" + "\n     Input:  [ [ '*', 3, 4, 5 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "60" + "\n     Input:  [['*',3,4,5]]");
   }
 });
 
@@ -239,7 +233,7 @@ test("four", function () {
   ]);
   var pass = _.isEqual(result, 360);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "360" + "\n     Input:  [ [ '*', 3, 4, 5, 6 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "360" + "\n     Input:  [['*',3,4,5,6]]");
   }
 });
 
@@ -269,7 +263,7 @@ test("one", function () {
   ]);
   var pass = _.isEqual(result, 0.5);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "0.5" + "\n     Input:  [ [ '/', 2 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "0.5" + "\n     Input:  [['/',2]]");
   }
 });
 
@@ -279,7 +273,7 @@ test("two", function () {
   ]);
   var pass = _.isEqual(result, 0.75);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "0.75" + "\n     Input:  [ [ '/', 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "0.75" + "\n     Input:  [['/',3,4]]");
   }
 });
 
@@ -289,7 +283,7 @@ test("three", function () {
   ]);
   var pass = _.isEqual(result, 0.15);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "0.15" + "\n     Input:  [ [ '/', 3, 4, 5 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "0.15" + "\n     Input:  [['/',3,4,5]]");
   }
 });
 
@@ -299,7 +293,7 @@ test("four", function () {
   ]);
   var pass = _.isEqual(result, 0.024999999999999998);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "0.024999999999999998" + "\n     Input:  [ [ '/', 3, 4, 5, 6 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "0.024999999999999998" + "\n     Input:  [['/',3,4,5,6]]");
   }
 });
 
@@ -347,7 +341,7 @@ test("two", function () {
   ]);
   var pass = _.isEqual(result, 3);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [ [ '%', 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [['%',3,4]]");
   }
 });
 
@@ -431,7 +425,7 @@ test("two", function () {
   ]);
   var pass = _.isEqual(result, 81);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "81" + "\n     Input:  [ [ '^', 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "81" + "\n     Input:  [['^',3,4]]");
   }
 });
 
@@ -479,7 +473,7 @@ test("an atom", function () {
   ]);
   var pass = _.isEqual(result, 'dog');
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "'dog'" + "\n     Input:  [ [ 'quote', 'dog' ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "'dog'" + "\n     Input:  [['quote','dog']]");
   }
 });
 
@@ -489,7 +483,7 @@ test("a number", function () {
   ]);
   var pass = _.isEqual(result, 3);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [ [ 'quote', 3 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [['quote',3]]");
   }
 });
 
@@ -499,7 +493,7 @@ test("a list", function () {
   ]);
   var pass = _.isEqual(result, [1, 2, 3]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 1, 2, 3 ]" + "\n     Input:  [ [ 'quote', [ 1, 2, 3 ] ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 1, 2, 3 ]" + "\n     Input:  [['quote',[1,2,3]]]");
   }
 });
 
@@ -509,7 +503,7 @@ test("eval", function () {
   ]);
   var pass = _.isEqual(result, [1, 3, 'x', 4]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 1, 3, 'x', 4 ]" + "\n     Input:  [ [ 'quote', [ 1, 3, 'x', 4 ] ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 1, 3, 'x', 4 ]" + "\n     Input:  [['quote',[1,3,'x',4]]]");
   }
 });
 
@@ -522,7 +516,7 @@ test("id", function () {
   ]);
   var pass = _.isEqual(result, [2]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 2 ]" + "\n     Input:  [ [ [ 'lambda', 'x', 'x' ], 2 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 2 ]" + "\n     Input:  [[['lambda','x','x'],2]]");
   }
 });
 
@@ -535,7 +529,7 @@ test("args", function () {
   ]);
   var pass = _.isEqual(result, [5]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 5 ]" + "\n     Input:  [ [ [ 'lambda', [ 'x', 'y' ], [ '+', 'x', 'y' ] ], 2, 3 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 5 ]" + "\n     Input:  [[['lambda',['x','y'],['+','x','y']],2,3]]");
   }
 });
 
@@ -547,7 +541,7 @@ test("basic", function () {
   ]);
   var pass = _.isEqual(result, 3);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [ [ 'if', [ 'quote', '#t' ], 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [['if',['quote','#t'],3,4]]");
   }
 });
 
@@ -557,7 +551,7 @@ test("basic f", function () {
   ]);
   var pass = _.isEqual(result, 4);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "4" + "\n     Input:  [ [ 'if', [ 'quote', '#f' ], 3, 4 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "4" + "\n     Input:  [['if',['quote','#f'],3,4]]");
   }
 });
 
@@ -569,7 +563,7 @@ test("simple", function () {
   ]);
   var pass = _.isEqual(result, 3);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [ [ 'define', 'x', 3 ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [['define','x',3]]");
   }
 });
 
@@ -581,7 +575,7 @@ test("simple", function () {
   ]);
   var pass = _.isEqual(result, 3);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [ [ 'begin', [ 'define', 'x', 3 ], 'x' ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [['begin',['define','x',3],'x']]");
   }
 });
 
@@ -593,7 +587,7 @@ test("multi", function () {
   ]);
   var pass = _.isEqual(result, 7);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "7" + "\n     Input:  [ [ 'begin', [ 'define', 'x', 3, 'y', 4 ], [ '+', 'x', 'y' ] ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "7" + "\n     Input:  [['begin',['define','x',3,'y',4],['+','x','y']]]");
   }
 });
 
@@ -606,10 +600,7 @@ test("set", function () {
   ]);
   var pass = _.isEqual(result, 6);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "6" + "\n     Input:  [ [ 'begin',
-    [ 'define', 'x', 3, 'y', 4 ],
-    [ 'set!', 'y', 3 ],
-    [ '+', 'x', 'y' ] ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "6" + "\n     Input:  [['begin',['define','x',3,'y',4],['set!','y',3],['+','x','y']]]");
   }
 });
 
@@ -623,11 +614,7 @@ test("hash", function () {
   ]);
   var pass = _.isEqual(result, 13);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "13" + "\n     Input:  [ [ 'begin',
-    [ 'define', 'x', [ '#', 'y', 5, 'z', 8 ] ],
-    [ '+',
-      [ '.', 'x', [ 'quote', 'y' ] ],
-      [ '.', 'x', [ 'quote', 'z' ] ] ] ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "13" + "\n     Input:  [['begin',['define','x',['#','y',5,'z',8]],['+',['.','x',['quote','y']],['.','x',['quote','z']]]]]");
   }
 });
 
@@ -639,6 +626,6 @@ test("sum", function () {
   ]);
   var pass = _.isEqual(result, 8);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "8" + "\n     Input:  [ [ 'let', 'x', 3, 'y', 5, [ '+', 'x', 'y' ] ] ]");
+    throw new Error(util.inspect(result) + " not equal to " + "8" + "\n     Input:  [['let','x',3,'y',5,['+','x','y']]]");
   }
 });
