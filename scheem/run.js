@@ -11,5 +11,7 @@ var parser = scheem.parse;
 var evalScheem = require('./evalScheem').evalScheem;
 
 module.exports = function (str) {
-  return evalScheem(parser(str));
+  var par = parser(str);
+  //console.log(par);
+  return evalScheem(par);
 }

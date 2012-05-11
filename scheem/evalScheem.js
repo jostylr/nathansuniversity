@@ -8,8 +8,7 @@ var debugF;
 var initenv = function () {
   return {
     vars : {
-      '+' :  function (arr) {
-        
+      '+' :  function (arr) {      
         if (!arr || arr.length === 0) {
           throw "insufficient arguments +";
         }
@@ -86,7 +85,32 @@ var initenv = function () {
           };
         }
         return cur; 
+      },
+      '<' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] >= arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      '=' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] !== arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
       }
+      
       
           
     },
@@ -166,9 +190,11 @@ var evalScheem = function (expr) {
     
   while (stack.length !== 0) {
     
+    debugF(stack)
+    
     cur = stack.pop();
     
-    //debugF(stack)
+    
         
     if (typeof cur === 'number') {
       values[0].push( cur );

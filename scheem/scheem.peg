@@ -1,6 +1,6 @@
 start =
     e: expression+
-    { e.unshift('begin'); return e;}
+    { if (e.length === 1) {return  e[0]; } else { e.unshift('begin'); return e;} }
 
 quote = 
   _ "'" _ e: expression
@@ -13,12 +13,13 @@ expression =
 	  {return a}
 	/ _ s: string  
 	  {return s}
-	/ quote 
+    / _ q: quote 
+  	{return q}
   / _ "(" _ e: expression+ _ ")" _
     {return e}
 
 validchar 
- 	= [0-9a-zA-Z_?!+=@#$%^&*/.-]
+ 	= [0-9a-zA-Z_?!+=<>@#$%^&*/.-]
     
 string = 
   _ "\"" s :[^\"\n\r]* "\""

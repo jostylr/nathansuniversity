@@ -10,6 +10,35 @@ var suites = {
   },
   arith: function () {
     return runT.apply(null, arguments);
+  },
+  begin: function () {
+    return runT.apply(null, arguments);
+  },
+  quote: function () {
+    return runT.apply({
+      debugS: 3
+    }, arguments);
+  },
+  lambda: function () {
+    return runT.apply(null, arguments);
+  },
+  ifel: function () {
+    return runT.apply(null, arguments);
+  },
+  def: function () {
+    return runT.apply(null, arguments);
+  },
+  let: function () {
+    return runT.apply(null, arguments);
+  },
+  inequality: function () {
+    return runT.apply(null, arguments);
+  },
+  recursion: function () {
+    return runT.apply(null, arguments);
+  },
+  equality: function () {
+    return runT.apply(null, arguments);
   }
 };
 
@@ -114,5 +143,101 @@ test("(% 3 4)", function () {
   var pass = _.isEqual(result, 3);
   if (!pass) {
     throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  ['(%34)']");
+  }
+});
+
+suite("quote");
+
+test("'(1 2 3)", function () {
+  var result = suites.quote.apply(null, ['\'(1 2 3)']);
+  var pass = _.isEqual(result, [1, 2, 3]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 1, 2, 3 ]" + "\n     Input:  ['\'(123)']");
+  }
+});
+
+test("'atom", function () {
+  var result = suites.quote.apply(null, ['\'atom']);
+  var pass = _.isEqual(result, 'atom');
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "'atom'" + "\n     Input:  ['\'atom']");
+  }
+});
+
+suite("inequality");
+
+test("(< 2 3)", function () {
+  var result = suites.inequality.apply(null, ['(< 2 3)']);
+  var pass = _.isEqual(result, '#t');
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "'#t'" + "\n     Input:  ['(<23)']");
+  }
+});
+
+test("(< 2 3 4)", function () {
+  var result = suites.inequality.apply(null, ['(< 2 3 4)']);
+  var pass = _.isEqual(result, '#t');
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "'#t'" + "\n     Input:  ['(<234)']");
+  }
+});
+
+test("(< 2 5 4)", function () {
+  var result = suites.inequality.apply(null, ['(< 2 5 4)']);
+  var pass = _.isEqual(result, '#f');
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "'#f'" + "\n     Input:  ['(<254)']");
+  }
+});
+
+test("(< 2)", function () {
+  var flag = true;
+  try {
+    suites.inequality.apply(null, ['(< 2)']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), "insufficient arguments +")) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
+  }
+});
+
+suite("equality");
+
+test("(= 1 0)", function () {
+  var result = suites.equality.apply(null, ['(= 1 0)']);
+  var pass = _.isEqual(result, '#f');
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "'#f'" + "\n     Input:  ['(=10)']");
+  }
+});
+
+test("(= 1 1)", function () {
+  var result = suites.equality.apply(null, ['(= 1 1)']);
+  var pass = _.isEqual(result, '#t');
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "'#t'" + "\n     Input:  ['(=11)']");
+  }
+});
+
+suite("recursion");
+
+test("(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (factorial 3)", function () {
+  var result = suites.recursion.apply(null, ['(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (factorial 3)']);
+  var pass = _.isEqual(result, [6]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 6 ]" + "\n     Input:  ['(definefactorial(lambda(n)(if(=n0)1(*n(factorial(-n1))))))(factorial3)']");
+  }
+});
+
+test("(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (factorial 5)", function () {
+  var result = suites.recursion.apply(null, ['(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (factorial 5)']);
+  var pass = _.isEqual(result, [120]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 120 ]" + "\n     Input:  ['(definefactorial(lambda(n)(if(=n0)1(*n(factorial(-n1))))))(factorial5)']");
   }
 });
