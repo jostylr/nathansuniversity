@@ -42,6 +42,9 @@ var suites = {
   },
   cons: function () {
     return runT.apply(null, arguments);
+  },
+  hash: function () {
+    return runT.apply(null, arguments);
   }
 };
 
@@ -336,5 +339,42 @@ test("(define x 3) (define x 5) x", function () {
   }
   if (flag) {
     throw new Error("failed to throw error");
+  }
+});
+
+suite("hash");
+
+test("(# x 4 y 6)", function () {
+  var result = suites.hash.apply(null, ['(# x 4 y 6)']);
+  var pass = _.isEqual(result, {
+    y: 6,
+    x: 4
+  });
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "{ y: 6, x: 4 }" + "\n     Input:  ['(#x4y6)']");
+  }
+});
+
+test("(. (# x 4 y 6) 'y)", function () {
+  var result = suites.hash.apply(null, ['(. (# x 4 y 6) \'y)']);
+  var pass = _.isEqual(result, 6);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "6" + "\n     Input:  ['(.(#x4y6)\'y)']");
+  }
+});
+
+test("(define x (# y 3 z (lambda (n) (+ (. this 'y) n)))) ((. x 'z) 5)", function () {
+  var result = suites.hash.apply(null, ['(define x (# y 3 z (lambda (n) (+ (. this \'y) n)))) ((. x \'z) 5)']);
+  var pass = _.isEqual(result, [8]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 8 ]" + "\n     Input:  ['(definex(#y3z(lambda(n)(+(.this\'y)n))))((.x\'z)5)']");
+  }
+});
+
+test("(define x (# y 3 z (lambda (+ (. this 'y) (cdr arguments))))) ((. x 'z) 5)", function () {
+  var result = suites.hash.apply(null, ['(define x (# y 3 z (lambda (+ (. this \'y) (cdr arguments))))) ((. x \'z) 5)']);
+  var pass = _.isEqual(result, [8]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 8 ]" + "\n     Input:  ['(definex(#y3z(lambda(+(.this\'y)(cdrarguments)))))((.x\'z)5)']");
   }
 });

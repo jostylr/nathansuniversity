@@ -37,6 +37,16 @@ var pair = function (elms, stack) {
 };
 
 var lambda = function (cur, lex) {
+  if (cur.length > 3) {
+    throw "too many arguments for lambda: (lambda _args _body)"
+  }
+  if (cur.length === 1) {
+    return function () {};
+  }
+  if (cur.length === 2) { // no arguments
+    cur[2] = cur[1];
+    cur[1] = [];
+  }
   return function (args, stack, values, env, self) {
     var newenv, v, a, i, n;
     stack.push({type: 'envChange', env : env});
@@ -368,7 +378,7 @@ initenv = function () {
         }
         return '#t'; 
       },
-      '<>' : function (arr) {
+      '!=' : function (arr) {
         if (!arr || arr.length === 0 || arr.length === 1) {
           throw "insufficient arguments +";
         }

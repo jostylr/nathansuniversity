@@ -43,6 +43,9 @@ module.exports.suites = {
   },
   cons: function () {
     return runT.apply(null, arguments);
+  },
+  hash: function () {
+    return runT.apply(null, arguments);
   }
 };
 
@@ -184,6 +187,27 @@ var data = {
     '(define x 3) (define x 5) x': {
       inp: ['(define x 3) (define x 5) x'],
       out: ['error', 'variable already defined: x']
+    }
+  },
+  hash: {
+    '(# x 4 y 6)': {
+      inp: ['(# x 4 y 6)'],
+      out: {
+        y: 6,
+        x: 4
+      }
+    },
+    '(. (# x 4 y 6) \'y)': {
+      inp: ['(. (# x 4 y 6) \'y)'],
+      out: 6
+    },
+    '(define x (# y 3 z (lambda (n) (+ (. this \'y) n)))) ((. x \'z) 5)': {
+      inp: ['(define x (# y 3 z (lambda (n) (+ (. this \'y) n)))) ((. x \'z) 5)'],
+      out: [8]
+    },
+    '(define x (# y 3 z (lambda (+ (. this \'y) (cdr arguments))))) ((. x \'z) 5)': {
+      inp: ['(define x (# y 3 z (lambda (+ (. this \'y) (cdr arguments))))) ((. x \'z) 5)'],
+      out: [8]
     }
   }
 };
