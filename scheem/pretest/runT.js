@@ -40,6 +40,9 @@ module.exports.suites = {
   },
   equality: function () {
     return runT.apply(null, arguments);
+  },
+  cons: function () {
+    return runT.apply(null, arguments);
   }
 };
 
@@ -139,6 +142,48 @@ var data = {
     '(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (factorial 5)': {
       inp: ['(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (factorial 5)'],
       out: [120]
+    }
+  },
+  cons: {
+    '(cons 1 \'(2 3))': {
+      inp: ['(cons 1 \'(2 3))'],
+      out: [1, 2, 3]
+    },
+    '(cdr \'(1 2 3))': {
+      inp: ['(cdr \'(1 2 3))'],
+      out: 1
+    },
+    '(cdr \'(5 2 3))': {
+      inp: ['(cdr \'(5 2 3))'],
+      out: 5
+    },
+    '(car \'(1 2 3))': {
+      inp: ['(car \'(1 2 3))'],
+      out: [2, 3]
+    }
+  },
+  ifel: {
+    '(define x 3) (let x 2 (* x 4)) x': {
+      inp: ['(define x 3) (let x 2 (* x 4)) x'],
+      out: 3
+    },
+    '(define x 3) (let x 2 (* x 4))': {
+      inp: ['(define x 3) (let x 2 (* x 4))'],
+      out: 8
+    }
+  },
+  def: {
+    '(define x 3) (set! x 5) x': {
+      inp: ['(define x 3) (set! x 5) x'],
+      out: 5
+    },
+    '(define x 3) (set! y 5) x': {
+      inp: ['(define x 3) (set! y 5) x'],
+      out: ['error', 'variable not yet  defined: y']
+    },
+    '(define x 3) (define x 5) x': {
+      inp: ['(define x 3) (define x 5) x'],
+      out: ['error', 'variable already defined: x']
     }
   }
 };

@@ -5,118 +5,7 @@ var util = require('util');
 
 var debugF;
 
-var initenv = function () {
-  return {
-    vars : {
-      '+' :  function (arr) {      
-        if (!arr || arr.length === 0) {
-          throw "insufficient arguments +";
-        }
-        var i, sum = 0, n = arr.length;
-        for (i = 0; i < n; i += 1) {
-          sum += arr[i];
-        }
-        return sum;
-      },
-      '-' : function (arr) {
-        if (!arr || arr.length === 0) {
-          throw "insufficient arguments -";
-        }
-        if (arr.length === 1) {
-          return -1*arr[0]; // inconsistent behavior.
-        }
-        var i, sum = arr[0], n = arr.length;
-        for (i = 1; i < n; i += 1) {
-          sum -= arr[i];
-        }
-        return sum;        
-      },
-      '*': function (arr) {
-        if (!arr || arr.length === 0) {
-          throw "insufficient arguments *";
-        }
-        var i, n = arr.length, prod = 1;
-        for (i = 0; i < n; i += 1) {
-          prod *= arr[i];
-        }
-        return prod;
-      },
-      '/' : function (arr) {
-        if (!arr || arr.length === 0) {
-          throw "insufficient arguments /";
-        }
-        if (arr.length === 1) {
-          return 1/arr[0]; // inconsistent behavior.
-        }
-        
-        var i, n = arr.length, prod = arr[0];
-        for (i = 1; i < n; i += 1) {
-          prod /= arr[i];
-        }
-        return prod;
-      },
-      '%' : function (arr) {
-        if (!arr || arr.length < 2) {
-          throw "insufficient arguments %";
-        } else if (arr.length > 2) {
-          throw "too many arguments %";
-        }
-        return arr[0] % arr[1];
-      },
-      '^' : function (arr) {
-        if (!arr || arr.length < 2) {
-          throw "insufficient arguments ^";
-        } else if (arr.length > 2) {
-          throw "too many arguments ^";
-        }
-        return Math.pow(arr[0], arr[1]);
-      }, 
-      '.' :  function (arr, s, v, env) { // (. name prop1 'prop2  ) = name[prop1].prop2
-        // arr = [hash, dude, prop2] where prop1 evaluates to dude
-        var cur, i, n = arr.length, old;
-        cur = arr[0];
-        for (i = 1; i < n; i += 1) {
-          old = cur;
-          cur = cur[arr[i]];
-        }
-        if (_.isFunction(cur)) {
-          return function (a, s, v, e) {  //adding this
-            return cur(a, s, v, e, old);
-          };
-        }
-        return cur; 
-      },
-      '<' : function (arr) {
-        if (!arr || arr.length === 0 || arr.length === 1) {
-          throw "insufficient arguments +";
-        }
-        var i, sum = 0, n = arr.length;
-        for (i = 1; i < n; i += 1) {
-          if (arr[i-1] >= arr[i]) {
-            return '#f'
-          }
-        }
-        return '#t'; 
-      },
-      '=' : function (arr) {
-        if (!arr || arr.length === 0 || arr.length === 1) {
-          throw "insufficient arguments +";
-        }
-        var i, sum = 0, n = arr.length;
-        for (i = 1; i < n; i += 1) {
-          if (arr[i-1] !== arr[i]) {
-            return '#f'
-          }
-        }
-        return '#t'; 
-      }
-      
-      
-          
-    },
-    parent : null
-  };
-};
+var initenv;
 
 var lookup = function (env, v) {
   while (env) {
@@ -338,6 +227,177 @@ var evalScheem = function (expr) {
   
 };
 
+initenv = function () {
+  return {
+    vars : {
+      '+' :  function (arr) {      
+        if (!arr || arr.length === 0) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 0; i < n; i += 1) {
+          sum += arr[i];
+        }
+        return sum;
+      },
+      '-' : function (arr) {
+        if (!arr || arr.length === 0) {
+          throw "insufficient arguments -";
+        }
+        if (arr.length === 1) {
+          return -1*arr[0]; // inconsistent behavior.
+        }
+        var i, sum = arr[0], n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          sum -= arr[i];
+        }
+        return sum;        
+      },
+      '*': function (arr) {
+        if (!arr || arr.length === 0) {
+          throw "insufficient arguments *";
+        }
+        var i, n = arr.length, prod = 1;
+        for (i = 0; i < n; i += 1) {
+          prod *= arr[i];
+        }
+        return prod;
+      },
+      '/' : function (arr) {
+        if (!arr || arr.length === 0) {
+          throw "insufficient arguments /";
+        }
+        if (arr.length === 1) {
+          return 1/arr[0]; // inconsistent behavior.
+        }
+        
+        var i, n = arr.length, prod = arr[0];
+        for (i = 1; i < n; i += 1) {
+          prod /= arr[i];
+        }
+        return prod;
+      },
+      '%' : function (arr) {
+        if (!arr || arr.length < 2) {
+          throw "insufficient arguments %";
+        } else if (arr.length > 2) {
+          throw "too many arguments %";
+        }
+        return arr[0] % arr[1];
+      },
+      '^' : function (arr) {
+        if (!arr || arr.length < 2) {
+          throw "insufficient arguments ^";
+        } else if (arr.length > 2) {
+          throw "too many arguments ^";
+        }
+        return Math.pow(arr[0], arr[1]);
+      }, 
+      '.' :  function (arr, s, v, env) { // (. name prop1 'prop2  ) = name[prop1].prop2
+        // arr = [hash, dude, prop2] where prop1 evaluates to dude
+        var cur, i, n = arr.length, old;
+        cur = arr[0];
+        for (i = 1; i < n; i += 1) {
+          old = cur;
+          cur = cur[arr[i]];
+        }
+        if (_.isFunction(cur)) {
+          return function (a, s, v, e) {  //adding this
+            return cur(a, s, v, e, old);
+          };
+        }
+        return cur; 
+      }, 
+      '=' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] !== arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      '<' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] >= arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      '>' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] <= arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      '<=' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] > arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      '>=' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] < arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      '<>' : function (arr) {
+        if (!arr || arr.length === 0 || arr.length === 1) {
+          throw "insufficient arguments +";
+        }
+        var i, sum = 0, n = arr.length;
+        for (i = 1; i < n; i += 1) {
+          if (arr[i-1] === arr[i]) {
+            return '#f'
+          }
+        }
+        return '#t'; 
+      },
+      //add 1st to list
+      'cons' : function (arr) {
+        arr[1].unshift(arr[0]);
+        return arr[1];
+      },
+      'cdr' : function (arr) {
+        return arr[0][0];
+      },
+      'car' : function (arr) {
+        arr[0].shift();
+        return arr[0]; 
+      }
+       
+          
+    },
+    parent : null
+  };
+};
 
 
 module.exports.evalScheem = evalScheem;

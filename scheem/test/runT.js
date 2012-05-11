@@ -39,6 +39,9 @@ var suites = {
   },
   equality: function () {
     return runT.apply(null, arguments);
+  },
+  cons: function () {
+    return runT.apply(null, arguments);
   }
 };
 
@@ -239,5 +242,99 @@ test("(define factorial (lambda (n) (if (= n 0) 1 (* n (factorial (- n 1)))))) (
   var pass = _.isEqual(result, [120]);
   if (!pass) {
     throw new Error(util.inspect(result) + " not equal to " + "[ 120 ]" + "\n     Input:  ['(definefactorial(lambda(n)(if(=n0)1(*n(factorial(-n1))))))(factorial5)']");
+  }
+});
+
+suite("cons");
+
+test("(cons 1 '(2 3))", function () {
+  var result = suites.cons.apply(null, ['(cons 1 \'(2 3))']);
+  var pass = _.isEqual(result, [1, 2, 3]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 1, 2, 3 ]" + "\n     Input:  ['(cons1\'(23))']");
+  }
+});
+
+test("(cdr '(1 2 3))", function () {
+  var result = suites.cons.apply(null, ['(cdr \'(1 2 3))']);
+  var pass = _.isEqual(result, 1);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "1" + "\n     Input:  ['(cdr\'(123))']");
+  }
+});
+
+test("(cdr '(5 2 3))", function () {
+  var result = suites.cons.apply(null, ['(cdr \'(5 2 3))']);
+  var pass = _.isEqual(result, 5);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "5" + "\n     Input:  ['(cdr\'(523))']");
+  }
+});
+
+test("(car '(1 2 3))", function () {
+  var result = suites.cons.apply(null, ['(car \'(1 2 3))']);
+  var pass = _.isEqual(result, [2, 3]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 2, 3 ]" + "\n     Input:  ['(car\'(123))']");
+  }
+});
+
+suite("ifel");
+
+test("(define x 3) (let x 2 (* x 4)) x", function () {
+  var result = suites.ifel.apply(null, ['(define x 3) (let x 2 (* x 4)) x']);
+  var pass = _.isEqual(result, 3);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  ['(definex3)(letx2(*x4))x']");
+  }
+});
+
+test("(define x 3) (let x 2 (* x 4))", function () {
+  var result = suites.ifel.apply(null, ['(define x 3) (let x 2 (* x 4))']);
+  var pass = _.isEqual(result, 8);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "8" + "\n     Input:  ['(definex3)(letx2(*x4))']");
+  }
+});
+
+suite("def");
+
+test("(define x 3) (set! x 5) x", function () {
+  var result = suites.def.apply(null, ['(define x 3) (set! x 5) x']);
+  var pass = _.isEqual(result, 5);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "5" + "\n     Input:  ['(definex3)(set!x5)x']");
+  }
+});
+
+test("(define x 3) (set! y 5) x", function () {
+  var flag = true;
+  try {
+    suites.def.apply(null, ['(define x 3) (set! y 5) x']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), "variable not yet  defined: y")) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
+  }
+});
+
+test("(define x 3) (define x 5) x", function () {
+  var flag = true;
+  try {
+    suites.def.apply(null, ['(define x 3) (define x 5) x']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), "variable already defined: x")) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
   }
 });
