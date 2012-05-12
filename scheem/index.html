@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <script src="jquery.js" type="text/javascript" charset="utf-8"></script>
+  <script src="run.js"></script>
+  <link rel="stylesheet" href="vendor/bs.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <style type="text/css">
+    body {
+      padding-top : 40px;
+    }
+    pre {word-break:normal}
+    
+  </style>
+    
+  <script src="vendor/CodeMirror/lib/codemirror.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" href="vendor/CodeMirror/lib/codemirror.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="vendor/CodeMirror/lib/util/runmode.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/CodeMirror/mode/scheme/scheme.js" type="text/javascript" charset="utf-8"></script>
+  
+  <link rel="stylesheet" href="vendor/vs.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <style type="text/css">.scriptedwriting {width:100%}</style>
+  
+  <script type="text/javascript">     
+  $(document).ready(function () {
+    var splitActive = false
+      , src = $("#edit").val()
+      , mirror$ = $("#mirror")
+      , fullEditor =  CodeMirror(mirror$[0], {
+          value : src
+        , mode : "scheem"
+        , lineNumbers : true
+        , lineWrapping : true
+      })
+    ;
+      
+    
+      
+    $("#eval").click(function () {
+      var str = fullEditor.getValue();
+      var out = run(str);
+      $("#result").html("<p>The result is:</p><p>"+out+"</p>");
+    }) //.click() //#full
+    $("#clear").click(function () {
+      fullEditor.setValue('');
+    })
+  })
+  </script>
+  
+</head>
+
+<body>
+  
+  <h4>Welcome to jostylr's Scheem</h4>
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span1"></div>
+      <div class="span5"><div id="mirror"><textarea class="hide" rows=10 cols=200 id="edit">(define x (# y 3 z (lambda (n) (+ (. this 'y) n)))) ((. x 'z) 5)</textarea>  
+      </div>
+      </div>
+      <div class="span5"><div id="result"></div>
+      </div>      
+      <div class="span1"></div>
+    
+    </div>
+  
+  <div class="row-fluid">
+    <div class="span4"></div>
+    <div class="span4">
+      <button class="btn btn-primary" id="eval">Eval</button>
+      <button class="btn btn-warning" id="clear">Clear</button>      
+    </div>
+    <div class="span4"></div>
+  <div class="row-fluid"><div class="span12">
+  </div></div>
+  
+  </div>
+  
+</body>
