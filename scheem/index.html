@@ -20,7 +20,7 @@
   <script src="vendor/CodeMirror/mode/scheme/scheme.js" type="text/javascript" charset="utf-8"></script>
   
   <link rel="stylesheet" href="vendor/vs.css" type="text/css" media="screen" title="no title" charset="utf-8">
-  <style type="text/css">.scriptedwriting {width:100%}</style>
+  <style type="text/css">.CodeMirror, #result {min-height: 20em; border-style: solid }</style>
   
   <script type="text/javascript">     
   $(document).ready(function () {
@@ -71,7 +71,10 @@
   <div class="container-fluid">
     <div class="row-fluid">
       <div class="span1"></div>
-      <div class="span5"><div id="mirror"><textarea class="hide" rows=10 cols=200 id="edit">(define x (# y 3 z (lambda (n) (+ (. this 'y) n)))) ((. x 'z) 5)</textarea>  
+      <div class="span5"><div id="mirror"><textarea class="hide" rows=10 cols=200 id="edit">(define x (# y 3 z 
+    (lambda (n) 
+        (+ (. this 'y) n)))) 
+((. x 'z) 5)</textarea>  
       </div>
       </div>
       <div class="span5"><div id="result"></div>
