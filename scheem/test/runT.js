@@ -152,6 +152,14 @@ test("(% 3 4)", function () {
   }
 });
 
+test("(* (+ 3 4) 5)", function () {
+  var result = suites.arith.apply(null, ['(* (+ 3 4) 5)']);
+  var pass = _.isEqual(result, 35);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "35" + "\n     Input:  ['(*(+34)5)']");
+  }
+});
+
 suite("quote");
 
 test("'(1 2 3)", function () {
