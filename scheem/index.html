@@ -32,6 +32,11 @@
         , mode : "scheem"
         , lineNumbers : true
         , lineWrapping : true
+        , extraKeys : {
+          'Cmd-Enter' : function () {
+            $("#eval").click();
+          }
+        }
       })
     ;
       
