@@ -23,3 +23,7 @@ exec = require('child_process').exec;
 exec("browserify -e test_entry.js -o test_go.js", {cwd:dir}, function (err, out, oerr) {
   exec("uglifyjs --overwrite test_go.js", {cwd:dir}, function (err, out, oerr) {});
 });
+
+exec("browserify -e entry.js -o run.js", {cwd:dir}, function (err, out, oerr) {
+  exec("uglifyjs --overwrite run.js", {cwd:dir}, function (err, out, oerr) {});
+});
