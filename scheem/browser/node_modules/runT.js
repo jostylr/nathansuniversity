@@ -2,7 +2,7 @@
 
 var _ = require('underscore');
 
-var runT = require('../run');
+var runT = require('run');
 
 var suites = {
   add: function () {
