@@ -46,7 +46,7 @@
       var str = fullEditor.getValue();
       var out = run(str);
       $("#result").html("<p>The result is:</p><p>"+out+"</p>");
-    }) //.click() //#full
+    }).click(); //#full
     $("#clear").click(function () {
       fullEditor.setValue('');
     })
@@ -86,8 +86,8 @@
   <div class="row-fluid">
     <div class="span4"></div>
     <div class="span4">
-      <button class="btn btn-primary" id="eval">Eval</button>
-      <button class="btn btn-warning" id="clear">Clear</button>      
+      <button class="btn btn-primary" title="cmd+enter" id="eval">Eval</button>
+      <button class="btn btn-warning" title="cmd+a ." id="clear">Clear</button>      
     </div>
     <div class="span4"></div>
   <div class="row-fluid"><div class="span12">
