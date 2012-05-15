@@ -1,0 +1,107 @@
+4.2 PEG negative
+
+start
+    = number
+
+number_frac
+    = "." chars:[0-9]*
+        { return "." + chars.join(''); }
+
+number
+    = n:"-"? chars:[0-9]+ frac:number_frac?
+        { return parseFloat(n + chars.join('') + frac); }
+        
+4.3 functions and variables
+expression = "EXPR" / primary
+
+number
+    = chars:[0-9]+
+        { return parseFloat(chars.join('')); }
+
+identifier
+    = chars:[a-z]+
+        { return chars.join(''); }
+
+primary
+    = number
+    / i:identifier
+    {return {tag:"ident", name: i}}
+    / "(" expr:expression ")"
+        { return expr; }
+        
+4.4 repeat
+
+start = statement
+
+expression = "EXPR"
+
+identifier
+    = chars:[a-z]+
+        { return chars.join(''); }
+
+statements = statement*
+
+statement
+    = v:identifier ":=" expr:expression ";"
+        { return { tag:":=", left:v, right:expr }; }
+     / "var " v:identifier ";"
+     	{return {tag:"var", name:v}}
+     / "if(" e: expression "){" 
+     	b: statements "}"
+        {return {tag : "if", expr : e, body : b}}
+     / "repeat(" e: expression "){" b:statements "}"
+     	{return {tag:"repeat", expr : e, body: b}}
+     	
+     	
+4.5 Evaluating Expression.s
+
+var evalExpr = function (expr, env) {
+    // Numbers evaluate to themselves
+    if (typeof expr === 'number') {
+        return expr;
+    }
+    // Look at tag to see what to do
+    switch(expr.tag) {
+        case '+':
+            return evalExpr(expr.left, env) +
+                   evalExpr(expr.right, env);
+        case 'ident' : 
+            return lookup(env, expr.name);
+    }
+};
+
+4.6 repeat
+
+var evalStatement = function (stmt, env) {
+    // Statements always have tags
+    switch(stmt.tag) {
+        // A single expression
+        case 'ignore':
+            return evalExpr(stmt.body, env);
+        // Repeat
+        case 'repeat':
+            // Your code here
+            n = evalExpr(stmt.expr, env);
+            for (i=0; i < n; i += 1) {
+                val = evalStatements(stmt.body);
+            }
+            return val;
+    }
+};
+
+4.8 turtle
+forward(100);
+right(45);
+forward(50);
+repeat(50) {
+  right(5);
+  forward(5);
+}
+forward(200);
+repeat(50) {
+  left(5);
+  forward(5);
+}
+forward(100);
+
+
