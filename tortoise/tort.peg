@@ -1,0 +1,89 @@
+start = 
+  s : statement+
+  {s.reverse(); return  s; }
+  
+  
+statement = 
+  ws "if" ws "(" ws e: expr ws ")" b: block
+  {return {tag: "if",  cond : e, body: b }; }
+  / ws "repeat" ws "(" ws times: expr ws ")" b : block
+  {return {tag : "repeat",  n : times, body : b};}
+  / ws "define" ws  i : identifier ws "(" ws a: arglist  ws ")" b: block
+  {return {tag: "define", name : i, args : a, body : b};}  
+  / ws "var" ws i : identifier ws ";" ws
+  {return {tag : "var", name : i };}
+  / ws i : identifier ws ":=" ws e: expr ws ";" ws
+  {return {tag : "assignment", name : i, value : e}; }
+  / ws e : expr ws ";"
+  {return e;}
+  
+block = 
+   ws "{" ws s: statement* ws "}" ws
+   {s.reverse(); return s;}
+  
+arglist = 
+  a: arg*
+  {a.reverse(); return a;}
+  
+arg = 
+  ws i: identifier ws ","? ws
+  {return i;}
+
+
+// arithmetic+
+expr = 
+  ws c: compare ws 
+  {return c;}
+  
+compareop =  ">=" / "<=" / "!=" / "==" / "<" / ">" 
+
+compare = ws l: add ws op : compareop ws r : add ws
+{return {tag: "op", op:  op, left : l, right : r};}
+/ add
+  
+addop = "+" / "-"
+  
+add  = ws l: mult ws op : addop ws r : add ws
+{return {tag: "op", op:  op, left : l, right : r};}
+/ mult
+
+multop = "*" / "/"
+
+mult = ws l: primary ws op : multop ws r : mult ws
+{return {tag: "op", op:  op, left : l, right : r};}
+/ primary
+  
+
+arge = 
+  ws e: expr ws ","? ws
+  {return e;}
+  
+primary = 
+  f : identifier ws "(" ws  a: arge*  ws ")" ws
+  {a.reverse(); return {tag : "call", name : f, args : a };}
+  / i : identifier
+  {return {tag: "identifier", name : i}; }
+  / number
+  / string
+  / "(" ws e: expr ws ")"
+  {return e}
+  
+  
+string = 
+  "'" str : [^']+ "'" 
+  { return {tag : "string", value : str.join('')} }
+
+identifier = 
+  first: [a-zA-z_] rest : [a-zA-Z_0-9]*
+  {return first + rest.join("");}
+  
+  
+number = 
+  n : "-" ? left : [0-9]+ "." right : [0-9]*
+  {return parseFloat(n + left.join("") + '.' + right.join("")); }  
+  / n : "-" ? left : [0-9]+ 
+  {return parseFloat(n + left.join("")); }  
+  
+
+  
+ws = [ \n\r\t]*
