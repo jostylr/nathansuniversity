@@ -2,6 +2,8 @@
 
 var fs = require('fs');
 
+var util = require('util');
+
 var pegjs = require('pegjs');
 
 var tort = pegjs.buildParser(fs.readFileSync("tort.peg", "utf8"));
@@ -16,21 +18,39 @@ var run = function () {
       return evalTort.call(this, arr);
     }
     catch (e) {
+      if (this.debugF) {
+        console.log(util.inspect(this.debugF.ret, false, 4));
+      }
       throw e;
     }
   };
 
 var suites = {
-  add: function () {
+  'add': function () {
     return run.apply(null, arguments);
   },
-  arith: function () {
+  'arith': function () {
     return run.apply(null, arguments);
   },
-  stat: function () {
-    return parser.apply(null, arguments);
+  'stat': function () {
+    return run.apply(null, arguments);
   },
-  if :function () {
+  'if': function () {
+    return run.apply(null, arguments);
+  },
+  'var': function () {
+    return run.apply(null, arguments);
+  },
+  'repeat': function () {
+    return run.apply({
+      //debugF: 1,
+      // maxtimes: 100
+    }, arguments);
+  },
+  'fun': function () {
+    return run.apply(null, arguments);
+  },
+  'ext': function () {
     return run.apply(null, arguments);
   }
 };
@@ -77,22 +97,9 @@ test("3 < 2;", function () {
 
 test("3 < 2 + 5;", function () {
   var result = suites.arith.apply(null, ['3 < 2 + 5;']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'op',
-      type: '<',
-      left: 3,
-      right: {
-        tag: 'op',
-        type: '+',
-        left: 2,
-        right: 5
-      }
-    }]
-  });
+  var pass = _.isEqual(result, true);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: \n   [ { tag: 'op',\n       type: '<',\n       left: 3,\n       right: { tag: 'op', type: '+', left: 2, right: 5 } } ] }" + "\n     Input:  ['3<2+5;']");
+    throw new Error(util.inspect(result) + " not equal to " + "true" + "\n     Input:  ['3<2+5;']");
   }
 });
 
@@ -127,7 +134,7 @@ test("-3 * 2 < 2 - - -5;", function () {
   }
   catch (e) {
     flag = false;
-    if (!_.isEqual(e.toString(), "SyntaxError: [0-9]")) {
+    if (!_.isEqual(e.toString(), 'SyntaxError: [0-9]')) {
       throw new Error("wrong error", e);
     }
   }
@@ -140,215 +147,743 @@ suite("stat");
 
 test("repeat (30) { 2 + 2; }", function () {
   var result = suites.stat.apply(null, ['repeat (30) { 2 + 2; }']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'repeat',
-      n: 30,
-      body: [{
-        tag: 'op',
-        type: '+',
-        left: 2,
-        right: 2
-      }]
-    }]
-  });
+  var pass = _.isEqual(result, 4);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: \n   [ { tag: 'repeat',\n       n: 30,\n       body: [ { tag: 'op', type: '+', left: 2, right: 2 } ] } ] }" + "\n     Input:  ['repeat(30){2+2;}']");
+    throw new Error(util.inspect(result) + " not equal to " + "4" + "\n     Input:  ['repeat(30){2+2;}']");
   }
 });
 
 test("f(5);", function () {
-  var result = suites.stat.apply(null, ['f(5);']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'call',
-      name: 'f',
-      args: [5]
-    }]
-  });
-  if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: [ { tag: 'call', name: 'f', args: [ 5 ] } ] }" + "\n     Input:  ['f(5);']");
+  var flag = true;
+  try {
+    suites.stat.apply(null, ['f(5);']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), 'Lookup: no such var f')) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
   }
 });
 
 test("var size;", function () {
   var result = suites.stat.apply(null, ['var size;']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'var',
-      name: 'size'
-    }]
-  });
+  var pass = _.isEqual(result, undefined);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements', body: [ { tag: 'var', name: 'size' } ] }" + "\n     Input:  ['varsize;']");
+    throw new Error(util.inspect(result) + " not equal to " + "undefined" + "\n     Input:  ['varsize;']");
   }
 });
 
 test("size := 5;", function () {
-  var result = suites.stat.apply(null, ['size := 5;']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'assignment',
-      name: 'size',
-      value: 5
-    }]
-  });
-  if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: [ { tag: 'assignment', name: 'size', value: 5 } ] }" + "\n     Input:  ['size:=5;']");
+  var flag = true;
+  try {
+    suites.stat.apply(null, ['size := 5;']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), 'Assignment: no such var size')) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
   }
 });
 
-test("repeat(18) {right(20);repeat(36) {forward(20);right(10);}}", function () {
-  var result = suites.stat.apply(null, ['repeat(18) {right(20);repeat(36) {forward(20);right(10);}}']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'repeat',
-      n: 18,
-      body: [{
-        tag: 'call',
-        name: 'right',
-        args: [20]
-      }, {
-        tag: 'repeat',
-        n: 36,
-        body: [{
-          tag: 'call',
-          name: 'forward',
-          args: [20]
-        }, {
-          tag: 'call',
-          name: 'right',
-          args: [10]
-        }]
-      }]
-    }]
-  });
+test("repeat(2) {right(20);repeat(3) {forward(20);right(10);}}", function () {
+  var result = suites.stat.apply(null, ['repeat(2) {right(20);repeat(3) {forward(20);right(10);}}']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'angle',
+    value: 70
+  }, {
+    tag: 'position',
+    value: [7, 19]
+  }, {
+    tag: 'angle',
+    value: 60
+  }, {
+    tag: 'position',
+    value: [17, 36]
+  }, {
+    tag: 'angle',
+    value: 50
+  }, {
+    tag: 'position',
+    value: [30, 51]
+  }, {
+    tag: 'angle',
+    value: 40
+  }, {
+    tag: 'angle',
+    value: 20
+  }, {
+    tag: 'position',
+    value: [49, 58]
+  }, {
+    tag: 'angle',
+    value: 10
+  }, {
+    tag: 'position',
+    value: [69, 61]
+  }, {
+    tag: 'angle',
+    value: 0
+  }, {
+    tag: 'position',
+    value: [89, 61]
+  }, {
+    tag: 'angle',
+    value: -10
+  }]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: \n   [ { tag: 'repeat',\n       n: 18,\n       body: \n        [ { tag: 'call', name: 'right', args: [ 20 ] },\n          { tag: 'repeat',\n            n: 36,\n            body: \n             [ { tag: 'call', name: 'forward', args: [ 20 ] },\n               { tag: 'call', name: 'right', args: [ 10 ] } ] } ] } ] }" + "\n     Input:  ['repeat(18){right(20);repeat(36){forward(20);right(10);}}']");
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'angle', value: 70 },\n  { tag: 'position', value: [ 7, 19 ] },\n  { tag: 'angle', value: 60 },\n  { tag: 'position', value: [ 17, 36 ] },\n  { tag: 'angle', value: 50 },\n  { tag: 'position', value: [ 30, 51 ] },\n  { tag: 'angle', value: 40 },\n  { tag: 'angle', value: 20 },\n  { tag: 'position', value: [ 49, 58 ] },\n  { tag: 'angle', value: 10 },\n  { tag: 'position', value: [ 69, 61 ] },\n  { tag: 'angle', value: 0 },\n  { tag: 'position', value: [ 89, 61 ] },\n  { tag: 'angle', value: -10 } ]" + "\n     Input:  ['repeat(2){right(20);repeat(3){forward(20);right(10);}}']");
   }
 });
 
 test("f();", function () {
-  var result = suites.stat.apply(null, ['f();']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'call',
-      name: 'f',
-      args: []
-    }]
-  });
-  if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: [ { tag: 'call', name: 'f', args: [] } ] }" + "\n     Input:  ['f();']");
+  var flag = true;
+  try {
+    suites.stat.apply(null, ['f();']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), 'Lookup: no such var f')) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
   }
 });
 
 test("define spiral(size) {    if (size < 30) {        forward(size);        right(15);        var newsize;        newsize := size * 1.02;        spiral(newsize);    }}spiral(5);", function () {
   var result = suites.stat.apply(null, ['define spiral(size) {    if (size < 30) {        forward(size);        right(15);        var newsize;        newsize := size * 1.02;        spiral(newsize);    }}spiral(5);']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'define',
-      name: 'spiral',
-      args: ['size'],
-      body: [{
-        tag: 'if',
-        cond: {
-          tag: 'op',
-          type: '<',
-          left: {
-            tag: 'identifier',
-            value: 'size'
-          },
-          right: 30
-        },
-        body: [{
-          tag: 'call',
-          name: 'forward',
-          args: [{
-            tag: 'identifier',
-            value: 'size'
-          }]
-        }, {
-          tag: 'call',
-          name: 'right',
-          args: [15]
-        }, {
-          tag: 'var',
-          name: 'newsize'
-        }, {
-          tag: 'assignment',
-          name: 'newsize',
-          value: {
-            tag: 'op',
-            type: '*',
-            left: {
-              tag: 'identifier',
-              value: 'size'
-            },
-            right: 1.02
-          }
-        }, {
-          tag: 'call',
-          name: 'spiral',
-          args: [{
-            tag: 'identifier',
-            value: 'newsize'
-          }]
-        }]
-      }]
-    }, {
-      tag: 'call',
-      name: 'spiral',
-      args: [5]
-    }]
-  });
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, 5]
+  }, {
+    tag: 'angle',
+    value: 75
+  }, {
+    tag: 'position',
+    value: [1, 10]
+  }, {
+    tag: 'angle',
+    value: 60
+  }, {
+    tag: 'position',
+    value: [4, 15]
+  }, {
+    tag: 'angle',
+    value: 45
+  }, {
+    tag: 'position',
+    value: [8, 19]
+  }, {
+    tag: 'angle',
+    value: 30
+  }, {
+    tag: 'position',
+    value: [13, 22]
+  }, {
+    tag: 'angle',
+    value: 15
+  }, {
+    tag: 'position',
+    value: [18, 23]
+  }, {
+    tag: 'angle',
+    value: 0
+  }, {
+    tag: 'position',
+    value: [24, 23]
+  }, {
+    tag: 'angle',
+    value: -15
+  }, {
+    tag: 'position',
+    value: [30, 22]
+  }, {
+    tag: 'angle',
+    value: -30
+  }, {
+    tag: 'position',
+    value: [35, 19]
+  }, {
+    tag: 'angle',
+    value: -45
+  }, {
+    tag: 'position',
+    value: [39, 15]
+  }, {
+    tag: 'angle',
+    value: -60
+  }, {
+    tag: 'position',
+    value: [42, 10]
+  }, {
+    tag: 'angle',
+    value: -75
+  }, {
+    tag: 'position',
+    value: [44, 4]
+  }, {
+    tag: 'angle',
+    value: -90
+  }, {
+    tag: 'position',
+    value: [44, -2]
+  }, {
+    tag: 'angle',
+    value: -105
+  }, {
+    tag: 'position',
+    value: [42, -8]
+  }, {
+    tag: 'angle',
+    value: -120
+  }, {
+    tag: 'position',
+    value: [39, -14]
+  }, {
+    tag: 'angle',
+    value: -135
+  }, {
+    tag: 'position',
+    value: [34, -19]
+  }, {
+    tag: 'angle',
+    value: -150
+  }, {
+    tag: 'position',
+    value: [28, -22]
+  }, {
+    tag: 'angle',
+    value: -165
+  }, {
+    tag: 'position',
+    value: [21, -24]
+  }, {
+    tag: 'angle',
+    value: -180
+  }, {
+    tag: 'position',
+    value: [14, -24]
+  }, {
+    tag: 'angle',
+    value: -195
+  }, {
+    tag: 'position',
+    value: [7, -22]
+  }, {
+    tag: 'angle',
+    value: -210
+  }, {
+    tag: 'position',
+    value: [1, -18]
+  }, {
+    tag: 'angle',
+    value: -225
+  }, {
+    tag: 'position',
+    value: [-4, -13]
+  }, {
+    tag: 'angle',
+    value: -240
+  }, {
+    tag: 'position',
+    value: [-8, -6]
+  }, {
+    tag: 'angle',
+    value: -255
+  }, {
+    tag: 'position',
+    value: [-10, 2]
+  }, {
+    tag: 'angle',
+    value: -270
+  }, {
+    tag: 'position',
+    value: [-10, 10]
+  }, {
+    tag: 'angle',
+    value: -285
+  }, {
+    tag: 'position',
+    value: [-8, 18]
+  }, {
+    tag: 'angle',
+    value: -300
+  }, {
+    tag: 'position',
+    value: [-4, 25]
+  }, {
+    tag: 'angle',
+    value: -315
+  }, {
+    tag: 'position',
+    value: [2, 31]
+  }, {
+    tag: 'angle',
+    value: -330
+  }, {
+    tag: 'position',
+    value: [10, 35]
+  }, {
+    tag: 'angle',
+    value: -345
+  }, {
+    tag: 'position',
+    value: [19, 37]
+  }, {
+    tag: 'angle',
+    value: -360
+  }, {
+    tag: 'position',
+    value: [28, 37]
+  }, {
+    tag: 'angle',
+    value: -375
+  }, {
+    tag: 'position',
+    value: [37, 35]
+  }, {
+    tag: 'angle',
+    value: -390
+  }, {
+    tag: 'position',
+    value: [45, 30]
+  }, {
+    tag: 'angle',
+    value: -405
+  }, {
+    tag: 'position',
+    value: [52, 23]
+  }, {
+    tag: 'angle',
+    value: -420
+  }, {
+    tag: 'position',
+    value: [57, 15]
+  }, {
+    tag: 'angle',
+    value: -435
+  }, {
+    tag: 'position',
+    value: [60, 5]
+  }, {
+    tag: 'angle',
+    value: -450
+  }, {
+    tag: 'position',
+    value: [60, -5]
+  }, {
+    tag: 'angle',
+    value: -465
+  }, {
+    tag: 'position',
+    value: [57, -15]
+  }, {
+    tag: 'angle',
+    value: -480
+  }, {
+    tag: 'position',
+    value: [52, -24]
+  }, {
+    tag: 'angle',
+    value: -495
+  }, {
+    tag: 'position',
+    value: [44, -32]
+  }, {
+    tag: 'angle',
+    value: -510
+  }, {
+    tag: 'position',
+    value: [34, -38]
+  }, {
+    tag: 'angle',
+    value: -525
+  }, {
+    tag: 'position',
+    value: [23, -41]
+  }, {
+    tag: 'angle',
+    value: -540
+  }, {
+    tag: 'position',
+    value: [12, -41]
+  }, {
+    tag: 'angle',
+    value: -555
+  }, {
+    tag: 'position',
+    value: [1, -38]
+  }, {
+    tag: 'angle',
+    value: -570
+  }, {
+    tag: 'position',
+    value: [-9, -32]
+  }, {
+    tag: 'angle',
+    value: -585
+  }, {
+    tag: 'position',
+    value: [-18, -23]
+  }, {
+    tag: 'angle',
+    value: -600
+  }, {
+    tag: 'position',
+    value: [-24, -12]
+  }, {
+    tag: 'angle',
+    value: -615
+  }, {
+    tag: 'position',
+    value: [-27, 0]
+  }, {
+    tag: 'angle',
+    value: -630
+  }, {
+    tag: 'position',
+    value: [-27, 13]
+  }, {
+    tag: 'angle',
+    value: -645
+  }, {
+    tag: 'position',
+    value: [-24, 26]
+  }, {
+    tag: 'angle',
+    value: -660
+  }, {
+    tag: 'position',
+    value: [-17, 38]
+  }, {
+    tag: 'angle',
+    value: -675
+  }, {
+    tag: 'position',
+    value: [-7, 48]
+  }, {
+    tag: 'angle',
+    value: -690
+  }, {
+    tag: 'position',
+    value: [5, 55]
+  }, {
+    tag: 'angle',
+    value: -705
+  }, {
+    tag: 'position',
+    value: [19, 59]
+  }, {
+    tag: 'angle',
+    value: -720
+  }, {
+    tag: 'position',
+    value: [34, 59]
+  }, {
+    tag: 'angle',
+    value: -735
+  }, {
+    tag: 'position',
+    value: [48, 55]
+  }, {
+    tag: 'angle',
+    value: -750
+  }, {
+    tag: 'position',
+    value: [61, 47]
+  }, {
+    tag: 'angle',
+    value: -765
+  }, {
+    tag: 'position',
+    value: [72, 36]
+  }, {
+    tag: 'angle',
+    value: -780
+  }, {
+    tag: 'position',
+    value: [80, 22]
+  }, {
+    tag: 'angle',
+    value: -795
+  }, {
+    tag: 'position',
+    value: [84, 6]
+  }, {
+    tag: 'angle',
+    value: -810
+  }, {
+    tag: 'position',
+    value: [84, -10]
+  }, {
+    tag: 'angle',
+    value: -825
+  }, {
+    tag: 'position',
+    value: [80, -26]
+  }, {
+    tag: 'angle',
+    value: -840
+  }, {
+    tag: 'position',
+    value: [71, -41]
+  }, {
+    tag: 'angle',
+    value: -855
+  }, {
+    tag: 'position',
+    value: [59, -53]
+  }, {
+    tag: 'angle',
+    value: -870
+  }, {
+    tag: 'position',
+    value: [44, -62]
+  }, {
+    tag: 'angle',
+    value: -885
+  }, {
+    tag: 'position',
+    value: [27, -67]
+  }, {
+    tag: 'angle',
+    value: -900
+  }, {
+    tag: 'position',
+    value: [9, -67]
+  }, {
+    tag: 'angle',
+    value: -915
+  }, {
+    tag: 'position',
+    value: [-9, -62]
+  }, {
+    tag: 'angle',
+    value: -930
+  }, {
+    tag: 'position',
+    value: [-26, -52]
+  }, {
+    tag: 'angle',
+    value: -945
+  }, {
+    tag: 'position',
+    value: [-40, -38]
+  }, {
+    tag: 'angle',
+    value: -960
+  }, {
+    tag: 'position',
+    value: [-50, -21]
+  }, {
+    tag: 'angle',
+    value: -975
+  }, {
+    tag: 'position',
+    value: [-55, -1]
+  }, {
+    tag: 'angle',
+    value: -990
+  }, {
+    tag: 'position',
+    value: [-55, 20]
+  }, {
+    tag: 'angle',
+    value: -1005
+  }, {
+    tag: 'position',
+    value: [-50, 40]
+  }, {
+    tag: 'angle',
+    value: -1020
+  }, {
+    tag: 'position',
+    value: [-39, 59]
+  }, {
+    tag: 'angle',
+    value: -1035
+  }, {
+    tag: 'position',
+    value: [-23, 75]
+  }, {
+    tag: 'angle',
+    value: -1050
+  }, {
+    tag: 'position',
+    value: [-3, 86]
+  }, {
+    tag: 'angle',
+    value: -1065
+  }, {
+    tag: 'position',
+    value: [19, 92]
+  }, {
+    tag: 'angle',
+    value: -1080
+  }, {
+    tag: 'position',
+    value: [42, 92]
+  }, {
+    tag: 'angle',
+    value: -1095
+  }, {
+    tag: 'position',
+    value: [65, 86]
+  }, {
+    tag: 'angle',
+    value: -1110
+  }, {
+    tag: 'position',
+    value: [86, 74]
+  }, {
+    tag: 'angle',
+    value: -1125
+  }, {
+    tag: 'position',
+    value: [104, 56]
+  }, {
+    tag: 'angle',
+    value: -1140
+  }, {
+    tag: 'position',
+    value: [117, 34]
+  }, {
+    tag: 'angle',
+    value: -1155
+  }, {
+    tag: 'position',
+    value: [124, 9]
+  }, {
+    tag: 'angle',
+    value: -1170
+  }, {
+    tag: 'position',
+    value: [124, -17]
+  }, {
+    tag: 'angle',
+    value: -1185
+  }, {
+    tag: 'position',
+    value: [117, -43]
+  }, {
+    tag: 'angle',
+    value: -1200
+  }, {
+    tag: 'position',
+    value: [103, -67]
+  }, {
+    tag: 'angle',
+    value: -1215
+  }, {
+    tag: 'position',
+    value: [83, -87]
+  }, {
+    tag: 'angle',
+    value: -1230
+  }, {
+    tag: 'position',
+    value: [58, -101]
+  }, {
+    tag: 'angle',
+    value: -1245
+  }, {
+    tag: 'position',
+    value: [30, -109]
+  }, {
+    tag: 'angle',
+    value: -1260
+  }, {
+    tag: 'position',
+    value: [0, -109]
+  }, {
+    tag: 'angle',
+    value: -1275
+  }]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: \n   [ { tag: 'define',\n       name: 'spiral',\n       args: [ 'size' ],\n       body: \n        [ { tag: 'if',\n            cond: \n             { tag: 'op',\n               type: '<',\n               left: { tag: 'identifier', value: 'size' },\n               right: 30 },\n            body: \n             [ { tag: 'call',\n                 name: 'forward',\n                 args: [ { tag: 'identifier', value: 'size' } ] },\n               { tag: 'call', name: 'right', args: [ 15 ] },\n               { tag: 'var', name: 'newsize' },\n               { tag: 'assignment',\n                 name: 'newsize',\n                 value: \n                  { tag: 'op',\n                    type: '*',\n                    left: { tag: 'identifier', value: 'size' },\n                    right: 1.02 } },\n               { tag: 'call',\n                 name: 'spiral',\n                 args: [ { tag: 'identifier', value: 'newsize' } ] } ] } ] },\n     { tag: 'call', name: 'spiral', args: [ 5 ] } ] }" + "\n     Input:  ['definespiral(size){if(size<30){forward(size);right(15);varnewsize;newsize:=size*1.02;spiral(newsize);}}spiral(5);']");
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, 5 ] },\n  { tag: 'angle', value: 75 },\n  { tag: 'position', value: [ 1, 10 ] },\n  { tag: 'angle', value: 60 },\n  { tag: 'position', value: [ 4, 15 ] },\n  { tag: 'angle', value: 45 },\n  { tag: 'position', value: [ 8, 19 ] },\n  { tag: 'angle', value: 30 },\n  { tag: 'position', value: [ 13, 22 ] },\n  { tag: 'angle', value: 15 },\n  { tag: 'position', value: [ 18, 23 ] },\n  { tag: 'angle', value: 0 },\n  { tag: 'position', value: [ 24, 23 ] },\n  { tag: 'angle', value: -15 },\n  { tag: 'position', value: [ 30, 22 ] },\n  { tag: 'angle', value: -30 },\n  { tag: 'position', value: [ 35, 19 ] },\n  { tag: 'angle', value: -45 },\n  { tag: 'position', value: [ 39, 15 ] },\n  { tag: 'angle', value: -60 },\n  { tag: 'position', value: [ 42, 10 ] },\n  { tag: 'angle', value: -75 },\n  { tag: 'position', value: [ 44, 4 ] },\n  { tag: 'angle', value: -90 },\n  { tag: 'position', value: [ 44, -2 ] },\n  { tag: 'angle', value: -105 },\n  { tag: 'position', value: [ 42, -8 ] },\n  { tag: 'angle', value: -120 },\n  { tag: 'position', value: [ 39, -14 ] },\n  { tag: 'angle', value: -135 },\n  { tag: 'position', value: [ 34, -19 ] },\n  { tag: 'angle', value: -150 },\n  { tag: 'position', value: [ 28, -22 ] },\n  { tag: 'angle', value: -165 },\n  { tag: 'position', value: [ 21, -24 ] },\n  { tag: 'angle', value: -180 },\n  { tag: 'position', value: [ 14, -24 ] },\n  { tag: 'angle', value: -195 },\n  { tag: 'position', value: [ 7, -22 ] },\n  { tag: 'angle', value: -210 },\n  { tag: 'position', value: [ 1, -18 ] },\n  { tag: 'angle', value: -225 },\n  { tag: 'position', value: [ -4, -13 ] },\n  { tag: 'angle', value: -240 },\n  { tag: 'position', value: [ -8, -6 ] },\n  { tag: 'angle', value: -255 },\n  { tag: 'position', value: [ -10, 2 ] },\n  { tag: 'angle', value: -270 },\n  { tag: 'position', value: [ -10, 10 ] },\n  { tag: 'angle', value: -285 },\n  { tag: 'position', value: [ -8, 18 ] },\n  { tag: 'angle', value: -300 },\n  { tag: 'position', value: [ -4, 25 ] },\n  { tag: 'angle', value: -315 },\n  { tag: 'position', value: [ 2, 31 ] },\n  { tag: 'angle', value: -330 },\n  { tag: 'position', value: [ 10, 35 ] },\n  { tag: 'angle', value: -345 },\n  { tag: 'position', value: [ 19, 37 ] },\n  { tag: 'angle', value: -360 },\n  { tag: 'position', value: [ 28, 37 ] },\n  { tag: 'angle', value: -375 },\n  { tag: 'position', value: [ 37, 35 ] },\n  { tag: 'angle', value: -390 },\n  { tag: 'position', value: [ 45, 30 ] },\n  { tag: 'angle', value: -405 },\n  { tag: 'position', value: [ 52, 23 ] },\n  { tag: 'angle', value: -420 },\n  { tag: 'position', value: [ 57, 15 ] },\n  { tag: 'angle', value: -435 },\n  { tag: 'position', value: [ 60, 5 ] },\n  { tag: 'angle', value: -450 },\n  { tag: 'position', value: [ 60, -5 ] },\n  { tag: 'angle', value: -465 },\n  { tag: 'position', value: [ 57, -15 ] },\n  { tag: 'angle', value: -480 },\n  { tag: 'position', value: [ 52, -24 ] },\n  { tag: 'angle', value: -495 },\n  { tag: 'position', value: [ 44, -32 ] },\n  { tag: 'angle', value: -510 },\n  { tag: 'position', value: [ 34, -38 ] },\n  { tag: 'angle', value: -525 },\n  { tag: 'position', value: [ 23, -41 ] },\n  { tag: 'angle', value: -540 },\n  { tag: 'position', value: [ 12, -41 ] },\n  { tag: 'angle', value: -555 },\n  { tag: 'position', value: [ 1, -38 ] },\n  { tag: 'angle', value: -570 },\n  { tag: 'position', value: [ -9, -32 ] },\n  { tag: 'angle', value: -585 },\n  { tag: 'position', value: [ -18, -23 ] },\n  { tag: 'angle', value: -600 },\n  { tag: 'position', value: [ -24, -12 ] },\n  { tag: 'angle', value: -615 },\n  { tag: 'position', value: [ -27, 0 ] },\n  { tag: 'angle', value: -630 },\n  { tag: 'position', value: [ -27, 13 ] },\n  { tag: 'angle', value: -645 },\n  { tag: 'position', value: [ -24, 26 ] },\n  { tag: 'angle', value: -660 },\n  { tag: 'position', value: [ -17, 38 ] },\n  { tag: 'angle', value: -675 },\n  { tag: 'position', value: [ -7, 48 ] },\n  { tag: 'angle', value: -690 },\n  { tag: 'position', value: [ 5, 55 ] },\n  { tag: 'angle', value: -705 },\n  { tag: 'position', value: [ 19, 59 ] },\n  { tag: 'angle', value: -720 },\n  { tag: 'position', value: [ 34, 59 ] },\n  { tag: 'angle', value: -735 },\n  { tag: 'position', value: [ 48, 55 ] },\n  { tag: 'angle', value: -750 },\n  { tag: 'position', value: [ 61, 47 ] },\n  { tag: 'angle', value: -765 },\n  { tag: 'position', value: [ 72, 36 ] },\n  { tag: 'angle', value: -780 },\n  { tag: 'position', value: [ 80, 22 ] },\n  { tag: 'angle', value: -795 },\n  { tag: 'position', value: [ 84, 6 ] },\n  { tag: 'angle', value: -810 },\n  { tag: 'position', value: [ 84, -10 ] },\n  { tag: 'angle', value: -825 },\n  { tag: 'position', value: [ 80, -26 ] },\n  { tag: 'angle', value: -840 },\n  { tag: 'position', value: [ 71, -41 ] },\n  { tag: 'angle', value: -855 },\n  { tag: 'position', value: [ 59, -53 ] },\n  { tag: 'angle', value: -870 },\n  { tag: 'position', value: [ 44, -62 ] },\n  { tag: 'angle', value: -885 },\n  { tag: 'position', value: [ 27, -67 ] },\n  { tag: 'angle', value: -900 },\n  { tag: 'position', value: [ 9, -67 ] },\n  { tag: 'angle', value: -915 },\n  { tag: 'position', value: [ -9, -62 ] },\n  { tag: 'angle', value: -930 },\n  { tag: 'position', value: [ -26, -52 ] },\n  { tag: 'angle', value: -945 },\n  { tag: 'position', value: [ -40, -38 ] },\n  { tag: 'angle', value: -960 },\n  { tag: 'position', value: [ -50, -21 ] },\n  { tag: 'angle', value: -975 },\n  { tag: 'position', value: [ -55, -1 ] },\n  { tag: 'angle', value: -990 },\n  { tag: 'position', value: [ -55, 20 ] },\n  { tag: 'angle', value: -1005 },\n  { tag: 'position', value: [ -50, 40 ] },\n  { tag: 'angle', value: -1020 },\n  { tag: 'position', value: [ -39, 59 ] },\n  { tag: 'angle', value: -1035 },\n  { tag: 'position', value: [ -23, 75 ] },\n  { tag: 'angle', value: -1050 },\n  { tag: 'position', value: [ -3, 86 ] },\n  { tag: 'angle', value: -1065 },\n  { tag: 'position', value: [ 19, 92 ] },\n  { tag: 'angle', value: -1080 },\n  { tag: 'position', value: [ 42, 92 ] },\n  { tag: 'angle', value: -1095 },\n  { tag: 'position', value: [ 65, 86 ] },\n  { tag: 'angle', value: -1110 },\n  { tag: 'position', value: [ 86, 74 ] },\n  { tag: 'angle', value: -1125 },\n  { tag: 'position', value: [ 104, 56 ] },\n  { tag: 'angle', value: -1140 },\n  { tag: 'position', value: [ 117, 34 ] },\n  { tag: 'angle', value: -1155 },\n  { tag: 'position', value: [ 124, 9 ] },\n  { tag: 'angle', value: -1170 },\n  { tag: 'position', value: [ 124, -17 ] },\n  { tag: 'angle', value: -1185 },\n  { tag: 'position', value: [ 117, -43 ] },\n  { tag: 'angle', value: -1200 },\n  { tag: 'position', value: [ 103, -67 ] },\n  { tag: 'angle', value: -1215 },\n  { tag: 'position', value: [ 83, -87 ] },\n  { tag: 'angle', value: -1230 },\n  { tag: 'position', value: [ 58, -101 ] },\n  { tag: 'angle', value: -1245 },\n  { tag: 'position', value: [ 30, -109 ] },\n  { tag: 'angle', value: -1260 },\n  { tag: 'position', value: [ 0, -109 ] },\n  { tag: 'angle', value: -1275 } ]" + "\n     Input:  ['definespiral(size){if(size<30){forward(size);right(15);varnewsize;newsize:=size*1.02;spiral(newsize);}}spiral(5);']");
   }
 });
 
 test("define square(x) {repeat(4) {forward(x);right(90);    }}square(100);square(20);", function () {
   var result = suites.stat.apply(null, ['define square(x) {repeat(4) {forward(x);right(90);    }}square(100);square(20);']);
-  var pass = _.isEqual(result, {
-    tag: 'statements',
-    body: [{
-      tag: 'define',
-      name: 'square',
-      args: ['x'],
-      body: [{
-        tag: 'repeat',
-        n: 4,
-        body: [{
-          tag: 'call',
-          name: 'forward',
-          args: [{
-            tag: 'identifier',
-            value: 'x'
-          }]
-        }, {
-          tag: 'call',
-          name: 'right',
-          args: [90]
-        }]
-      }]
-    }, {
-      tag: 'call',
-      name: 'square',
-      args: [100]
-    }, {
-      tag: 'call',
-      name: 'square',
-      args: [20]
-    }]
-  });
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, 100]
+  }, {
+    tag: 'angle',
+    value: 0
+  }, {
+    tag: 'position',
+    value: [100, 100]
+  }, {
+    tag: 'angle',
+    value: -90
+  }, {
+    tag: 'position',
+    value: [100, 0]
+  }, {
+    tag: 'angle',
+    value: -180
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: -270
+  }, {
+    tag: 'position',
+    value: [0, 20]
+  }, {
+    tag: 'angle',
+    value: -360
+  }, {
+    tag: 'position',
+    value: [20, 20]
+  }, {
+    tag: 'angle',
+    value: -450
+  }, {
+    tag: 'position',
+    value: [20, 0]
+  }, {
+    tag: 'angle',
+    value: -540
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: -630
+  }]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ tag: 'statements',\n  body: \n   [ { tag: 'define',\n       name: 'square',\n       args: [ 'x' ],\n       body: \n        [ { tag: 'repeat',\n            n: 4,\n            body: \n             [ { tag: 'call',\n                 name: 'forward',\n                 args: [ { tag: 'identifier', value: 'x' } ] },\n               { tag: 'call', name: 'right', args: [ 90 ] } ] } ] },\n     { tag: 'call', name: 'square', args: [ 100 ] },\n     { tag: 'call', name: 'square', args: [ 20 ] } ] }" + "\n     Input:  ['definesquare(x){repeat(4){forward(x);right(90);}}square(100);square(20);']");
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, 100 ] },\n  { tag: 'angle', value: 0 },\n  { tag: 'position', value: [ 100, 100 ] },\n  { tag: 'angle', value: -90 },\n  { tag: 'position', value: [ 100, 0 ] },\n  { tag: 'angle', value: -180 },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: -270 },\n  { tag: 'position', value: [ 0, 20 ] },\n  { tag: 'angle', value: -360 },\n  { tag: 'position', value: [ 20, 20 ] },\n  { tag: 'angle', value: -450 },\n  { tag: 'position', value: [ 20, 0 ] },\n  { tag: 'angle', value: -540 },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: -630 } ]" + "\n     Input:  ['definesquare(x){repeat(4){forward(x);right(90);}}square(100);square(20);']");
   }
 });
 
@@ -359,8 +894,7 @@ test("f()", function () {
   }
   catch (e) {
     flag = false;
-    if (!_.isEqual(e.toString(), "SyntaxError: " != "," * "," + "," - "," / ",";
-    "," < "," <= "," == "," > "," >= ",[ \n\r\t]")) {
+    if (!_.isEqual(e.toString(), 'SyntaxError: "!=","*","+","-","/",";","<","<=","==",">",">=",[ \\n\\r\\t]')) {
       throw new Error("wrong error", e);
     }
   }
@@ -370,19 +904,18 @@ test("f()", function () {
 });
 
 test("f(3, g(1));", function () {
-  var result = suites.stat.apply(null, ['f(3, g(1));']);
-  var pass = _.isEqual(result, [{
-    tag: 'call',
-    name: 'f',
-    args: [3,
-    {
-      tag: 'call',
-      name: 'g',
-      args: [1]
-    }]
-  }]);
-  if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'call',\n    name: 'f',\n    args: [ 3, { tag: 'call', name: 'g', args: [ 1 ] } ] } ]" + "\n     Input:  ['f(3,g(1));']");
+  var flag = true;
+  try {
+    suites.stat.apply(null, ['f(3, g(1));']);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), 'Lookup: no such var f')) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
   }
 });
 
@@ -394,5 +927,316 @@ test("if(3<4){2+3;}", function () {
   var pass = _.isEqual(result, 5);
   if (!pass) {
     throw new Error(util.inspect(result) + " not equal to " + "5" + "\n     Input:  ['if(3<4){2+3;}']");
+  }
+});
+
+test("if(3>4){2+3;}", function () {
+  var result = suites.
+  if .apply(null, ['if(3>4){2+3;}']);
+  var pass = _.isEqual(result, undefined);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "undefined" + "\n     Input:  ['if(3>4){2+3;}']");
+  }
+});
+
+suite("var");
+
+test("var test; test := 5 +3; test;", function () {
+  var result = suites.
+  var.apply(null, ['var test; test := 5 +3; test;']);
+  var pass = _.isEqual(result, 8);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "8" + "\n     Input:  ['vartest;test:=5+3;test;']");
+  }
+});
+
+suite("repeat");
+
+test("var x; repeat(10) { x := x+1; } x;", function () {
+  var result = suites.repeat.apply(null, ['var x; repeat(10) { x := x+1; } x;']);
+  var pass = _.isEqual(result, 10);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "10" + "\n     Input:  ['varx;repeat(10){x:=x+1;}x;']");
+  }
+});
+
+suite("fun");
+
+test("define id (x) {x;} id(3);", function () {
+  var result = suites.fun.apply(null, ['define id (x) {x;} id(3);']);
+  var pass = _.isEqual(result, 3);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  ['defineid(x){x;}id(3);']");
+  }
+});
+
+test("define f (n) {n + 5;} f(3);", function () {
+  var result = suites.fun.apply(null, ['define f (n) {n + 5;} f(3);']);
+  var pass = _.isEqual(result, 8);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "8" + "\n     Input:  ['definef(n){n+5;}f(3);']");
+  }
+});
+
+test("define fac (n) {if (n <= 1) {1;} if (n> 1) {n*fac(n-1);}} fac(3);", function () {
+  var result = suites.fun.apply(null, ['define fac (n) {if (n <= 1) {1;} if (n> 1) {n*fac(n-1);}} fac(3);']);
+  var pass = _.isEqual(result, 6);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "6" + "\n     Input:  ['definefac(n){if(n<=1){1;}if(n>1){n*fac(n-1);}}fac(3);']");
+  }
+});
+
+suite("ext");
+
+test("forward(3);", function () {
+  var result = suites.ext.apply(null, ['forward(3);']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, 3]
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, 3 ] } ]" + "\n     Input:  ['forward(3);']");
+  }
+});
+
+test("forward(3); left(45); back(7); right(45);", function () {
+  var result = suites.ext.apply(null, ['forward(3); left(45); back(7); right(45);']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, 3]
+  }, {
+    tag: 'angle',
+    value: 135
+  }, {
+    tag: 'position',
+    value: [5, -2]
+  }, {
+    tag: 'angle',
+    value: 90
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, 3 ] },\n  { tag: 'angle', value: 135 },\n  { tag: 'position', value: [ 5, -2 ] },\n  { tag: 'angle', value: 90 } ]" + "\n     Input:  ['forward(3);left(45);back(7);right(45);']");
+  }
+});
+
+test("penup(); right(30); forward(5); pendown(); speed(2); left(60); forward(1); eraser(); back(2); home(); back(5); clear();", function () {
+  var result = suites.ext.apply(null, ['penup(); right(30); forward(5); pendown(); speed(2); left(60); forward(1); eraser(); back(2); home(); back(5); clear();']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'penup'
+  }, {
+    tag: 'angle',
+    value: 60
+  }, {
+    tag: 'position',
+    value: [3, 4]
+  }, {
+    tag: 'pendown'
+  }, {
+    tag: 'speed',
+    value: 2
+  }, {
+    tag: 'angle',
+    value: 120
+  }, {
+    tag: 'position',
+    value: [3, 5]
+  }, {
+    tag: 'color',
+    value: 'white'
+  }, {
+    tag: 'position',
+    value: [4, 3]
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, -5]
+  }, {
+    tag: 'clear'
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'penup' },\n  { tag: 'angle', value: 60 },\n  { tag: 'position', value: [ 3, 4 ] },\n  { tag: 'pendown' },\n  { tag: 'speed', value: 2 },\n  { tag: 'angle', value: 120 },\n  { tag: 'position', value: [ 3, 5 ] },\n  { tag: 'color', value: 'white' },\n  { tag: 'position', value: [ 4, 3 ] },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, -5 ] },\n  { tag: 'clear' },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 } ]" + "\n     Input:  ['penup();right(30);forward(5);pendown();speed(2);left(60);forward(1);eraser();back(2);home();back(5);clear();']");
+  }
+});
+
+test("penup(); forward(5); pendown(); speed(2);  forward(1); eraser(); back(2); home(); back(5); clear();", function () {
+  var result = suites.ext.apply(null, ['penup(); forward(5); pendown(); speed(2);  forward(1); eraser(); back(2); home(); back(5); clear();']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'penup'
+  }, {
+    tag: 'position',
+    value: [0, 5]
+  }, {
+    tag: 'pendown'
+  }, {
+    tag: 'speed',
+    value: 2
+  }, {
+    tag: 'position',
+    value: [0, 6]
+  }, {
+    tag: 'color',
+    value: 'white'
+  }, {
+    tag: 'position',
+    value: [0, 4]
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, -5]
+  }, {
+    tag: 'clear'
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'penup' },\n  { tag: 'position', value: [ 0, 5 ] },\n  { tag: 'pendown' },\n  { tag: 'speed', value: 2 },\n  { tag: 'position', value: [ 0, 6 ] },\n  { tag: 'color', value: 'white' },\n  { tag: 'position', value: [ 0, 4 ] },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, -5 ] },\n  { tag: 'clear' },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 } ]" + "\n     Input:  ['penup();forward(5);pendown();speed(2);forward(1);eraser();back(2);home();back(5);clear();']");
+  }
+});
+
+test("penup(); pendown(); speed(2); eraser(); home(); clear();", function () {
+  var result = suites.ext.apply(null, ['penup(); pendown(); speed(2); eraser(); home(); clear();']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'penup'
+  }, {
+    tag: 'pendown'
+  }, {
+    tag: 'speed',
+    value: 2
+  }, {
+    tag: 'color',
+    value: 'white'
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'clear'
+  }, {
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'penup' },\n  { tag: 'pendown' },\n  { tag: 'speed', value: 2 },\n  { tag: 'color', value: 'white' },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'clear' },\n  { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 } ]" + "\n     Input:  ['penup();pendown();speed(2);eraser();home();clear();']");
+  }
+});
+
+test("forward(5);speed(2);  forward(1);  back(2);  back(5);", function () {
+  var result = suites.ext.apply(null, ['forward(5);speed(2);  forward(1);  back(2);  back(5);']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, 5]
+  }, {
+    tag: 'speed',
+    value: 2
+  }, {
+    tag: 'position',
+    value: [0, 6]
+  }, {
+    tag: 'position',
+    value: [0, 4]
+  }, {
+    tag: 'position',
+    value: [0, -1]
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, 5 ] },\n  { tag: 'speed', value: 2 },\n  { tag: 'position', value: [ 0, 6 ] },\n  { tag: 'position', value: [ 0, 4 ] },\n  { tag: 'position', value: [ 0, -1 ] } ]" + "\n     Input:  ['forward(5);speed(2);forward(1);back(2);back(5);']");
+  }
+});
+
+test(" forward(1);  back(2);", function () {
+  var result = suites.ext.apply(null, [' forward(1);  back(2);']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, 1]
+  }, {
+    tag: 'position',
+    value: [0, -1]
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, 1 ] },\n  { tag: 'position', value: [ 0, -1 ] } ]" + "\n     Input:  ['forward(1);back(2);']");
+  }
+});
+
+test(" back(2);", function () {
+  var result = suites.ext.apply(null, [' back(2);']);
+  var pass = _.isEqual(result, [{
+    tag: 'position',
+    value: [0, 0]
+  }, {
+    tag: 'angle',
+    value: 90
+  }, {
+    tag: 'position',
+    value: [0, -2]
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ { tag: 'position', value: [ 0, 0 ] },\n  { tag: 'angle', value: 90 },\n  { tag: 'position', value: [ 0, -2 ] } ]" + "\n     Input:  ['back(2);']");
   }
 });

@@ -10,16 +10,16 @@ var parser = tort.parse;
 
 //----
 module.exports.suites = {
-  add: function () {
+  'add': function () {
     return parser.apply(null, arguments);
   },
-  arith: function () {
+  'arith': function () {
     return parser.apply(null, arguments);
   },
-  stat: function () {
+  'stat': function () {
     return parser.apply(null, arguments);
   },
-  str: function () {
+  'str': function () {
     return parser.apply(null, arguments);
   }
 };

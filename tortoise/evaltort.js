@@ -83,7 +83,7 @@ var evalTort = function (statements, turtle) {
   //initial environment
   env = initenv(turtle);
   
-  turtle = env.vars.turtle; 
+  turtle = env.turtle; 
          
   while (stack.length !== 0) {
     
@@ -228,8 +228,8 @@ arith = {
 initenv = function (turtle) {
   turtle =  turtle || {
     current : [0, 0, 90],
-    com : function (obj) {
-      this.steps.push(obj);
+    com : function () {
+      this.steps.push.apply(this.steps, arguments);
     },
     steps : [{tag : "position", value : [0, 0]}, {tag : "angle", value : 90}],
     ret : function () {
@@ -246,15 +246,15 @@ initenv = function (turtle) {
   };
   
   return {
+    turtle : turtle,
     vars : {
-      turtle : turtle,
       forward : {
         lex : turtle,
         body : function (d) {
           //[x, y, angle]
           var a = this.current[2] 
-            , x = Math.round(this.current[0] + cos(a)*d)
-            , y = Math.round(this.current[1] + sin(a)*d)
+            , x = Math.floor(this.current[0] + cos(a)*d + 0.5)
+            , y = Math.floor(this.current[1] + sin(a)*d + 0.5)
             ;
             
           this.current = [x, y, a];
@@ -283,8 +283,8 @@ initenv = function (turtle) {
         body : function (d) {
           //[x, y, angle]
           var a = this.current[2] 
-          , x = Math.round(this.current[0] - cos(a)*d)
-          , y = Math.round(this.current[1] - sin(a)*d)
+          , x = Math.floor(this.current[0] - cos(a)*d + 0.5)
+          , y = Math.floor(this.current[1] - sin(a)*d + 0.5)
             ;
             
           this.current = [x, y, a];
@@ -314,13 +314,13 @@ initenv = function (turtle) {
        lex : turtle,
         body : function () {
           this.current = [0,0,90];
-          this.com(this.current); 
+          this.com({tag : "position", value : [0, 0]}, {tag : "angle", value : 90});
         }
      },
      clear : {
        lex : turtle,
         body : function () {
-          this.com({tag: "clear"}, [0, 0, 90]);
+          this.com({tag: "clear"}, {tag : "position", value : [0, 0]}, {tag : "angle", value : 90});
           this.current = [0,0,90];
         }
      },

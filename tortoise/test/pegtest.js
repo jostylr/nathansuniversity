@@ -9,16 +9,16 @@ var tort = pegjs.buildParser(fs.readFileSync("tort.peg", "utf8"));
 var parser = tort.parse;
 
 var suites = {
-  add: function () {
+  'add': function () {
     return parser.apply(null, arguments);
   },
-  arith: function () {
+  'arith': function () {
     return parser.apply(null, arguments);
   },
-  stat: function () {
+  'stat': function () {
     return parser.apply(null, arguments);
   },
-  str: function () {
+  'str': function () {
     return parser.apply(null, arguments);
   }
 };
@@ -187,7 +187,7 @@ test("-3 * 2 < 2 - - -5;", function () {
   }
   catch (e) {
     flag = false;
-    if (!_.isEqual(e.toString(), "SyntaxError: [0-9]")) {
+    if (!_.isEqual(e.toString(), 'SyntaxError: [0-9]')) {
       throw new Error("wrong error", e);
     }
   }
@@ -395,8 +395,7 @@ test("f()", function () {
   }
   catch (e) {
     flag = false;
-    if (!_.isEqual(e.toString(), "SyntaxError: " != "," * "," + "," - "," / ",";
-    "," < "," <= "," == "," > "," >= ",[ \n\r\t]")) {
+    if (!_.isEqual(e.toString(), 'SyntaxError: "!=","*","+","-","/",";","<","<=","==",">",">=",[ \\n\\r\\t]')) {
       throw new Error("wrong error", e);
     }
   }
