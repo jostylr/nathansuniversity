@@ -119,7 +119,8 @@ var data = {
       inp: ['repeat(2) {right(20);repeat(3) {forward(20);right(10);}}'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -128,19 +129,22 @@ var data = {
         value: 70
       }, {
         tag: 'position',
-        value: [7, 19]
+        x: 7,
+        y: 19
       }, {
         tag: 'angle',
         value: 60
       }, {
         tag: 'position',
-        value: [17, 36]
+        x: 17,
+        y: 36
       }, {
         tag: 'angle',
         value: 50
       }, {
         tag: 'position',
-        value: [30, 51]
+        x: 30,
+        y: 51
       }, {
         tag: 'angle',
         value: 40
@@ -149,19 +153,22 @@ var data = {
         value: 20
       }, {
         tag: 'position',
-        value: [49, 58]
+        x: 49,
+        y: 58
       }, {
         tag: 'angle',
         value: 10
       }, {
         tag: 'position',
-        value: [69, 61]
+        x: 69,
+        y: 61
       }, {
         tag: 'angle',
         value: 0
       }, {
         tag: 'position',
-        value: [89, 61]
+        x: 89,
+        y: 61
       }, {
         tag: 'angle',
         value: -10
@@ -175,553 +182,645 @@ var data = {
       inp: ['define spiral(size) {    if (size < 30) {        forward(size);        right(15);        var newsize;        newsize := size * 1.02;        spiral(newsize);    }}spiral(5);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, 5]
+        x: 0,
+        y: 5
       }, {
         tag: 'angle',
         value: 75
       }, {
         tag: 'position',
-        value: [1, 10]
+        x: 1,
+        y: 10
       }, {
         tag: 'angle',
         value: 60
       }, {
         tag: 'position',
-        value: [4, 15]
+        x: 4,
+        y: 15
       }, {
         tag: 'angle',
         value: 45
       }, {
         tag: 'position',
-        value: [8, 19]
+        x: 8,
+        y: 19
       }, {
         tag: 'angle',
         value: 30
       }, {
         tag: 'position',
-        value: [13, 22]
+        x: 13,
+        y: 22
       }, {
         tag: 'angle',
         value: 15
       }, {
         tag: 'position',
-        value: [18, 23]
+        x: 18,
+        y: 23
       }, {
         tag: 'angle',
         value: 0
       }, {
         tag: 'position',
-        value: [24, 23]
+        x: 24,
+        y: 23
       }, {
         tag: 'angle',
         value: -15
       }, {
         tag: 'position',
-        value: [30, 22]
+        x: 30,
+        y: 22
       }, {
         tag: 'angle',
         value: -30
       }, {
         tag: 'position',
-        value: [35, 19]
+        x: 35,
+        y: 19
       }, {
         tag: 'angle',
         value: -45
       }, {
         tag: 'position',
-        value: [39, 15]
+        x: 39,
+        y: 15
       }, {
         tag: 'angle',
         value: -60
       }, {
         tag: 'position',
-        value: [42, 10]
+        x: 42,
+        y: 10
       }, {
         tag: 'angle',
         value: -75
       }, {
         tag: 'position',
-        value: [44, 4]
+        x: 44,
+        y: 4
       }, {
         tag: 'angle',
         value: -90
       }, {
         tag: 'position',
-        value: [44, -2]
+        x: 44,
+        y: -2
       }, {
         tag: 'angle',
         value: -105
       }, {
         tag: 'position',
-        value: [42, -8]
+        x: 42,
+        y: -8
       }, {
         tag: 'angle',
         value: -120
       }, {
         tag: 'position',
-        value: [39, -14]
+        x: 39,
+        y: -14
       }, {
         tag: 'angle',
         value: -135
       }, {
         tag: 'position',
-        value: [34, -19]
+        x: 34,
+        y: -19
       }, {
         tag: 'angle',
         value: -150
       }, {
         tag: 'position',
-        value: [28, -22]
+        x: 28,
+        y: -22
       }, {
         tag: 'angle',
         value: -165
       }, {
         tag: 'position',
-        value: [21, -24]
+        x: 21,
+        y: -24
       }, {
         tag: 'angle',
         value: -180
       }, {
         tag: 'position',
-        value: [14, -24]
+        x: 14,
+        y: -24
       }, {
         tag: 'angle',
         value: -195
       }, {
         tag: 'position',
-        value: [7, -22]
+        x: 7,
+        y: -22
       }, {
         tag: 'angle',
         value: -210
       }, {
         tag: 'position',
-        value: [1, -18]
+        x: 1,
+        y: -18
       }, {
         tag: 'angle',
         value: -225
       }, {
         tag: 'position',
-        value: [-4, -13]
+        x: -4,
+        y: -13
       }, {
         tag: 'angle',
         value: -240
       }, {
         tag: 'position',
-        value: [-8, -6]
+        x: -8,
+        y: -6
       }, {
         tag: 'angle',
         value: -255
       }, {
         tag: 'position',
-        value: [-10, 2]
+        x: -10,
+        y: 2
       }, {
         tag: 'angle',
         value: -270
       }, {
         tag: 'position',
-        value: [-10, 10]
+        x: -10,
+        y: 10
       }, {
         tag: 'angle',
         value: -285
       }, {
         tag: 'position',
-        value: [-8, 18]
+        x: -8,
+        y: 18
       }, {
         tag: 'angle',
         value: -300
       }, {
         tag: 'position',
-        value: [-4, 25]
+        x: -4,
+        y: 25
       }, {
         tag: 'angle',
         value: -315
       }, {
         tag: 'position',
-        value: [2, 31]
+        x: 2,
+        y: 31
       }, {
         tag: 'angle',
         value: -330
       }, {
         tag: 'position',
-        value: [10, 35]
+        x: 10,
+        y: 35
       }, {
         tag: 'angle',
         value: -345
       }, {
         tag: 'position',
-        value: [19, 37]
+        x: 19,
+        y: 37
       }, {
         tag: 'angle',
         value: -360
       }, {
         tag: 'position',
-        value: [28, 37]
+        x: 28,
+        y: 37
       }, {
         tag: 'angle',
         value: -375
       }, {
         tag: 'position',
-        value: [37, 35]
+        x: 37,
+        y: 35
       }, {
         tag: 'angle',
         value: -390
       }, {
         tag: 'position',
-        value: [45, 30]
+        x: 45,
+        y: 30
       }, {
         tag: 'angle',
         value: -405
       }, {
         tag: 'position',
-        value: [52, 23]
+        x: 52,
+        y: 23
       }, {
         tag: 'angle',
         value: -420
       }, {
         tag: 'position',
-        value: [57, 15]
+        x: 57,
+        y: 15
       }, {
         tag: 'angle',
         value: -435
       }, {
         tag: 'position',
-        value: [60, 5]
+        x: 60,
+        y: 5
       }, {
         tag: 'angle',
         value: -450
       }, {
         tag: 'position',
-        value: [60, -5]
+        x: 60,
+        y: -5
       }, {
         tag: 'angle',
         value: -465
       }, {
         tag: 'position',
-        value: [57, -15]
+        x: 57,
+        y: -15
       }, {
         tag: 'angle',
         value: -480
       }, {
         tag: 'position',
-        value: [52, -24]
+        x: 52,
+        y: -24
       }, {
         tag: 'angle',
         value: -495
       }, {
         tag: 'position',
-        value: [44, -32]
+        x: 44,
+        y: -32
       }, {
         tag: 'angle',
         value: -510
       }, {
         tag: 'position',
-        value: [34, -38]
+        x: 34,
+        y: -38
       }, {
         tag: 'angle',
         value: -525
       }, {
         tag: 'position',
-        value: [23, -41]
+        x: 23,
+        y: -41
       }, {
         tag: 'angle',
         value: -540
       }, {
         tag: 'position',
-        value: [12, -41]
+        x: 12,
+        y: -41
       }, {
         tag: 'angle',
         value: -555
       }, {
         tag: 'position',
-        value: [1, -38]
+        x: 1,
+        y: -38
       }, {
         tag: 'angle',
         value: -570
       }, {
         tag: 'position',
-        value: [-9, -32]
+        x: -9,
+        y: -32
       }, {
         tag: 'angle',
         value: -585
       }, {
         tag: 'position',
-        value: [-18, -23]
+        x: -18,
+        y: -23
       }, {
         tag: 'angle',
         value: -600
       }, {
         tag: 'position',
-        value: [-24, -12]
+        x: -24,
+        y: -12
       }, {
         tag: 'angle',
         value: -615
       }, {
         tag: 'position',
-        value: [-27, 0]
+        x: -27,
+        y: 0
       }, {
         tag: 'angle',
         value: -630
       }, {
         tag: 'position',
-        value: [-27, 13]
+        x: -27,
+        y: 13
       }, {
         tag: 'angle',
         value: -645
       }, {
         tag: 'position',
-        value: [-24, 26]
+        x: -24,
+        y: 26
       }, {
         tag: 'angle',
         value: -660
       }, {
         tag: 'position',
-        value: [-17, 38]
+        x: -17,
+        y: 38
       }, {
         tag: 'angle',
         value: -675
       }, {
         tag: 'position',
-        value: [-7, 48]
+        x: -7,
+        y: 48
       }, {
         tag: 'angle',
         value: -690
       }, {
         tag: 'position',
-        value: [5, 55]
+        x: 5,
+        y: 55
       }, {
         tag: 'angle',
         value: -705
       }, {
         tag: 'position',
-        value: [19, 59]
+        x: 19,
+        y: 59
       }, {
         tag: 'angle',
         value: -720
       }, {
         tag: 'position',
-        value: [34, 59]
+        x: 34,
+        y: 59
       }, {
         tag: 'angle',
         value: -735
       }, {
         tag: 'position',
-        value: [48, 55]
+        x: 48,
+        y: 55
       }, {
         tag: 'angle',
         value: -750
       }, {
         tag: 'position',
-        value: [61, 47]
+        x: 61,
+        y: 47
       }, {
         tag: 'angle',
         value: -765
       }, {
         tag: 'position',
-        value: [72, 36]
+        x: 72,
+        y: 36
       }, {
         tag: 'angle',
         value: -780
       }, {
         tag: 'position',
-        value: [80, 22]
+        x: 80,
+        y: 22
       }, {
         tag: 'angle',
         value: -795
       }, {
         tag: 'position',
-        value: [84, 6]
+        x: 84,
+        y: 6
       }, {
         tag: 'angle',
         value: -810
       }, {
         tag: 'position',
-        value: [84, -10]
+        x: 84,
+        y: -10
       }, {
         tag: 'angle',
         value: -825
       }, {
         tag: 'position',
-        value: [80, -26]
+        x: 80,
+        y: -26
       }, {
         tag: 'angle',
         value: -840
       }, {
         tag: 'position',
-        value: [71, -41]
+        x: 71,
+        y: -41
       }, {
         tag: 'angle',
         value: -855
       }, {
         tag: 'position',
-        value: [59, -53]
+        x: 59,
+        y: -53
       }, {
         tag: 'angle',
         value: -870
       }, {
         tag: 'position',
-        value: [44, -62]
+        x: 44,
+        y: -62
       }, {
         tag: 'angle',
         value: -885
       }, {
         tag: 'position',
-        value: [27, -67]
+        x: 27,
+        y: -67
       }, {
         tag: 'angle',
         value: -900
       }, {
         tag: 'position',
-        value: [9, -67]
+        x: 9,
+        y: -67
       }, {
         tag: 'angle',
         value: -915
       }, {
         tag: 'position',
-        value: [-9, -62]
+        x: -9,
+        y: -62
       }, {
         tag: 'angle',
         value: -930
       }, {
         tag: 'position',
-        value: [-26, -52]
+        x: -26,
+        y: -52
       }, {
         tag: 'angle',
         value: -945
       }, {
         tag: 'position',
-        value: [-40, -38]
+        x: -40,
+        y: -38
       }, {
         tag: 'angle',
         value: -960
       }, {
         tag: 'position',
-        value: [-50, -21]
+        x: -50,
+        y: -21
       }, {
         tag: 'angle',
         value: -975
       }, {
         tag: 'position',
-        value: [-55, -1]
+        x: -55,
+        y: -1
       }, {
         tag: 'angle',
         value: -990
       }, {
         tag: 'position',
-        value: [-55, 20]
+        x: -55,
+        y: 20
       }, {
         tag: 'angle',
         value: -1005
       }, {
         tag: 'position',
-        value: [-50, 40]
+        x: -50,
+        y: 40
       }, {
         tag: 'angle',
         value: -1020
       }, {
         tag: 'position',
-        value: [-39, 59]
+        x: -39,
+        y: 59
       }, {
         tag: 'angle',
         value: -1035
       }, {
         tag: 'position',
-        value: [-23, 75]
+        x: -23,
+        y: 75
       }, {
         tag: 'angle',
         value: -1050
       }, {
         tag: 'position',
-        value: [-3, 86]
+        x: -3,
+        y: 86
       }, {
         tag: 'angle',
         value: -1065
       }, {
         tag: 'position',
-        value: [19, 92]
+        x: 19,
+        y: 92
       }, {
         tag: 'angle',
         value: -1080
       }, {
         tag: 'position',
-        value: [42, 92]
+        x: 42,
+        y: 92
       }, {
         tag: 'angle',
         value: -1095
       }, {
         tag: 'position',
-        value: [65, 86]
+        x: 65,
+        y: 86
       }, {
         tag: 'angle',
         value: -1110
       }, {
         tag: 'position',
-        value: [86, 74]
+        x: 86,
+        y: 74
       }, {
         tag: 'angle',
         value: -1125
       }, {
         tag: 'position',
-        value: [104, 56]
+        x: 104,
+        y: 56
       }, {
         tag: 'angle',
         value: -1140
       }, {
         tag: 'position',
-        value: [117, 34]
+        x: 117,
+        y: 34
       }, {
         tag: 'angle',
         value: -1155
       }, {
         tag: 'position',
-        value: [124, 9]
+        x: 124,
+        y: 9
       }, {
         tag: 'angle',
         value: -1170
       }, {
         tag: 'position',
-        value: [124, -17]
+        x: 124,
+        y: -17
       }, {
         tag: 'angle',
         value: -1185
       }, {
         tag: 'position',
-        value: [117, -43]
+        x: 117,
+        y: -43
       }, {
         tag: 'angle',
         value: -1200
       }, {
         tag: 'position',
-        value: [103, -67]
+        x: 103,
+        y: -67
       }, {
         tag: 'angle',
         value: -1215
       }, {
         tag: 'position',
-        value: [83, -87]
+        x: 83,
+        y: -87
       }, {
         tag: 'angle',
         value: -1230
       }, {
         tag: 'position',
-        value: [58, -101]
+        x: 58,
+        y: -101
       }, {
         tag: 'angle',
         value: -1245
       }, {
         tag: 'position',
-        value: [30, -109]
+        x: 30,
+        y: -109
       }, {
         tag: 'angle',
         value: -1260
       }, {
         tag: 'position',
-        value: [0, -109]
+        x: 0,
+        y: -109
       }, {
         tag: 'angle',
         value: -1275
@@ -731,55 +830,64 @@ var data = {
       inp: ['define square(x) {repeat(4) {forward(x);right(90);    }}square(100);square(20);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, 100]
+        x: 0,
+        y: 100
       }, {
         tag: 'angle',
         value: 0
       }, {
         tag: 'position',
-        value: [100, 100]
+        x: 100,
+        y: 100
       }, {
         tag: 'angle',
         value: -90
       }, {
         tag: 'position',
-        value: [100, 0]
+        x: 100,
+        y: 0
       }, {
         tag: 'angle',
         value: -180
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: -270
       }, {
         tag: 'position',
-        value: [0, 20]
+        x: 0,
+        y: 20
       }, {
         tag: 'angle',
         value: -360
       }, {
         tag: 'position',
-        value: [20, 20]
+        x: 20,
+        y: 20
       }, {
         tag: 'angle',
         value: -450
       }, {
         tag: 'position',
-        value: [20, 0]
+        x: 20,
+        y: 0
       }, {
         tag: 'angle',
         value: -540
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: -630
@@ -832,32 +940,37 @@ var data = {
       inp: ['forward(3);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, 3]
+        x: 0,
+        y: 3
       }]
     },
     'forward(3); left(45); back(7); right(45);': {
       inp: ['forward(3); left(45); back(7); right(45);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, 3]
+        x: 0,
+        y: 3
       }, {
         tag: 'angle',
         value: 135
       }, {
         tag: 'position',
-        value: [5, -2]
+        x: 5,
+        y: -2
       }, {
         tag: 'angle',
         value: 90
@@ -867,7 +980,8 @@ var data = {
       inp: ['penup(); right(30); forward(5); pendown(); speed(2); left(60); forward(1); eraser(); back(2); home(); back(5); clear();'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -878,7 +992,8 @@ var data = {
         value: 60
       }, {
         tag: 'position',
-        value: [3, 4]
+        x: 3,
+        y: 4
       }, {
         tag: 'pendown'
       }, {
@@ -889,27 +1004,31 @@ var data = {
         value: 120
       }, {
         tag: 'position',
-        value: [3, 5]
+        x: 3,
+        y: 5
       }, {
-        tag: 'color',
-        value: 'white'
-      }, {
-        tag: 'position',
-        value: [4, 3]
+        tag: 'eraser'
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 4,
+        y: 3
+      }, {
+        tag: 'position',
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, -5]
+        x: 0,
+        y: -5
       }, {
         tag: 'clear'
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -919,7 +1038,8 @@ var data = {
       inp: ['penup(); forward(5); pendown(); speed(2);  forward(1); eraser(); back(2); home(); back(5); clear();'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -927,7 +1047,8 @@ var data = {
         tag: 'penup'
       }, {
         tag: 'position',
-        value: [0, 5]
+        x: 0,
+        y: 5
       }, {
         tag: 'pendown'
       }, {
@@ -935,27 +1056,31 @@ var data = {
         value: 2
       }, {
         tag: 'position',
-        value: [0, 6]
+        x: 0,
+        y: 6
       }, {
-        tag: 'color',
-        value: 'white'
-      }, {
-        tag: 'position',
-        value: [0, 4]
+        tag: 'eraser'
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 4
+      }, {
+        tag: 'position',
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, -5]
+        x: 0,
+        y: -5
       }, {
         tag: 'clear'
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -965,7 +1090,8 @@ var data = {
       inp: ['penup(); pendown(); speed(2); eraser(); home(); clear();'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -977,11 +1103,11 @@ var data = {
         tag: 'speed',
         value: 2
       }, {
-        tag: 'color',
-        value: 'white'
+        tag: 'eraser'
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -989,7 +1115,8 @@ var data = {
         tag: 'clear'
       }, {
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
@@ -999,54 +1126,64 @@ var data = {
       inp: ['forward(5);speed(2);  forward(1);  back(2);  back(5);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, 5]
+        x: 0,
+        y: 5
       }, {
         tag: 'speed',
         value: 2
       }, {
         tag: 'position',
-        value: [0, 6]
+        x: 0,
+        y: 6
       }, {
         tag: 'position',
-        value: [0, 4]
+        x: 0,
+        y: 4
       }, {
         tag: 'position',
-        value: [0, -1]
+        x: 0,
+        y: -1
       }]
     },
     ' forward(1);  back(2);': {
       inp: [' forward(1);  back(2);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, 1]
+        x: 0,
+        y: 1
       }, {
         tag: 'position',
-        value: [0, -1]
+        x: 0,
+        y: -1
       }]
     },
     ' back(2);': {
       inp: [' back(2);'],
       out: [{
         tag: 'position',
-        value: [0, 0]
+        x: 0,
+        y: 0
       }, {
         tag: 'angle',
         value: 90
       }, {
         tag: 'position',
-        value: [0, -2]
+        x: 0,
+        y: -2
       }]
     }
   }

@@ -228,10 +228,10 @@ arith = {
 initenv = function (turtle) {
   turtle =  turtle || {
     current : [0, 0, 90],
-    com : function () {
-      this.steps.push.apply(this.steps, arguments);
+    com : function (c) {
+      this.steps.push(c);
     },
-    steps : [{tag : "position", value : [0, 0]}, {tag : "angle", value : 90}],
+    steps : [{tag : "position", x: 0,  y : 0}, {tag : "angle", value : 90}],
     ret : function () {
       return this.steps;
     }
@@ -258,7 +258,7 @@ initenv = function (turtle) {
             ;
             
           this.current = [x, y, a];
-          this.com({tag : "position", value : [x, y]});
+          this.com({tag : "position", x : x, y : y});
           return this;
       } // body
      },  //forward
@@ -288,7 +288,7 @@ initenv = function (turtle) {
             ;
             
           this.current = [x, y, a];
-          this.com({tag : "position", value : [x, y]});
+          this.com({tag : "position", x: x, y : y});
           return this;
       } // body
      },  //back
@@ -307,28 +307,30 @@ initenv = function (turtle) {
      eraser : {
        lex : turtle,
        body : function () {
-         this.com({tag: "color", value: "white"});
+         this.com({tag: "eraser"});
        }
      },
      home : {
        lex : turtle,
         body : function () {
           this.current = [0,0,90];
-          this.com({tag : "position", value : [0, 0]}, {tag : "angle", value : 90});
+          this.com({tag : "position", x: 0, y : 0});
+          this.com({tag : "angle", value : 90});
         }
      },
      clear : {
        lex : turtle,
         body : function () {
-          this.com({tag: "clear"}, {tag : "position", value : [0, 0]}, {tag : "angle", value : 90});
+          this.com({tag: "clear"});
+          this.com({tag : "position", x : 0,  y :0});
+          this.com({tag : "angle", value : 90});
           this.current = [0,0,90];
         }
      },
      color : {
        lex : turtle,
         body : function (i) {
-          var color = ["white", "red", "blue", "green", "yellow"];
-          this.com({tag: "color", value: color[i]});
+          this.com({tag: "color", value: str});
         }
      },
      speed : {
