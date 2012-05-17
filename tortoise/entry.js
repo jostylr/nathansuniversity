@@ -7,7 +7,7 @@ run = (function () {
 
   return function (str, opt) {
     var par = parser(str);
-    //console.log(par);
+    console.log(par);
     return et(par, new Turtle(opt));
   }  
 }());

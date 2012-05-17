@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <script src="jquery.js" type="text/javascript" charset="utf-8"></script>
+  <script src="raph.js" ></script>
+  <script src="bsDropDown.js"></script>
+  <script src="run.js"></script>
+  <link rel="stylesheet" href="vendor/bs.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <style type="text/css">
+    body {
+      padding-top : 40px;
+    }
+    pre {word-break:normal}
+    
+  </style>
+    
+  <script src="vendor/CodeMirror/lib/codemirror.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" href="vendor/CodeMirror/lib/codemirror.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <script src="vendor/CodeMirror/lib/util/runmode.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/CodeMirror/mode/scheme/scheme.js" type="text/javascript" charset="utf-8"></script>
+  
+  <link rel="stylesheet" href="vendor/vs.css" type="text/css" media="screen" title="no title" charset="utf-8">
+  <style type="text/css">.CodeMirror, #result {min-height: 500px; border-style: solid }</style>
+  
+  <script type="text/javascript">     
+  $(document).ready(function () {
+    $('.dropdown-toggle').dropdown()
+    
+    //get textareas, add in drop downs, get a starting value randomly from them
+    var drop$ = $("#examples textarea").each(function () {
+      var self = this;
+      var name = this.id;
+      $("<li><a href=\"#\">"+name+"</a></li>").click(function(){
+        fullEditor.setValue(self.value);
+        $("#eval").click();
+      }).appendTo("#exdrop");
+    });
+    
+    
+    var src = drop$[Math.floor(Math.random() * (drop$.length))].value;
+    
+    var  fullEditor =  CodeMirror(document.getElementById("mirror"), {
+          value : src
+        , mode : "scheme"
+        , lineNumbers : true
+        , lineWrapping : true
+        , extraKeys : {
+          'Cmd-Enter' : function () {
+            $("#eval").click();
+          }
+        }
+      })
+    ;
+      
+    var sourced = false;
+      
+    $("#eval").click(function () {
+      var str = fullEditor.getValue();
+      $("#result").html('');
+      $("#log").html('');
+      try {
+        var out = run(str, {div : "result", w: 400, h:400});        
+      } catch (e) {
+        $("#log").append(e.toString());
+      }
+    }).click(); //#full
+    $("#clear").click(function () {
+      fullEditor.setValue('');
+    });
+
+
+
+
+  }); //ready
+  
+  
+  </script>
+  
+</head>
+
+<body>
+  
+  <!-- should do navbar here-->
+   <div class="navbar navbar-fixed-top">
+     <div class="navbar-inner">
+       <div class="container-fluid">
+         <a class="brand" href="#">jostylr's Tortoise</a>
+         <ul class="nav">
+           <li class="active">
+             <a href="#">REPL</a>
+           </li>
+           <li><a href="test.html">Test</a></li>
+           <li><a href="docs.html">Docs</a></li>
+           <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"> Examples <b class="caret"></b></a>
+              <ul id="exdrop" class="dropdown-menu">
+              </ul>
+         </ul>
+       </div>
+     </div>
+   </div>
+  
+  <br/><br/>
+  
+  <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span1"></div>
+      <div class="span5"><div id="mirror"></div></div>
+      <div class="span4"><div id="result" style="width: 400px; height: 450 px;"></div>
+      </div>      
+      <div class="span1"></div>      
+      <div class="span1"><ul id="log"></ul></div>
+    
+    </div>
+  
+  <div class="row-fluid">
+    <div class="span4"></div>
+    <div class="span4">
+      <button class="btn btn-primary" title="cmd+enter" id="eval">Run</button>
+      <button class="btn btn-warning" title="cmd+a ." id="clear">Clear</button>
+            
+    </div>
+    <div class="span4"></div>
+  <div class="row-fluid"><div class="span12"><div id="sourceOut"></div>
+  </div></div>
+  
+  </div>
+  
+  <div class="hide" id="examples">
+  <!--  <textarea id="Rt Triangle">forward(140);
+right(135); 
+forward(200); 
+home();</textarea>
+-->
+    <textarea id="Reg polygons">
+define regpoly (rad, sides) {
+  penup();
+  home();
+  var angle;
+  angle := 360/sides;
+  var length;
+  length := 2*cos(angle/2)*rad;
+  print(length);
+  left(angle/2);
+  forward(rad);
+  left(3*angle/2);
+  pendown();
+  forward(length);
+  
+}
+var r;
+r := 40; 
+regpoly(50, 4);
+</textarea>
+
+<textarea id="Frac Tree (lordlorik, mcleopold)">
+define curve(size, angle, scale, count) {
+  if (count > 0) {
+    forward(size);
+    left(angle);
+    curve(size * scale, angle, scale, count - 1);
+
+	right(90);
+	curve(size * scale * scale, angle, scale, count - 1);
+	left(90);
+
+	right(angle + 180);
+	pendown();
+	if (count < 2) {
+      color('#0a0');
+      thick(10);
+    }
+    if (count > 2) {
+      color('#a50');
+      thick(count);
+    }
+	forward(size);
+	penup();
+	left(180);
+  }
+}
+ 
+penup();
+right(180);
+forward(100);
+right(180);
+curve(100, 29, 0.80, 10);
+</textarea>
+  </div>
+  
+</body>
