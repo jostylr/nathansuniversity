@@ -51,12 +51,13 @@ var newenv = function (parent, names, values) {
   return ret;
 };
 
-var evalTort = function (statements, initialvars) {
+var evalTort = function (statements, turtle) {
   var cur, env, temp, i, f
-    , maxtimes = this.maxtimes || 1e4
+    , maxtimes = this.maxtimes || 1e6
     , numtimes = 0
     , stack = [] //always an array
     , values = [[]]
+    , turtle
   ;
 
 
@@ -80,8 +81,10 @@ var evalTort = function (statements, initialvars) {
   //var 
   
   //initial environment
-  env = initenv(initialvars || {});
-           
+  env = initenv(turtle);
+  
+  turtle = env.turtle; 
+         
   while (stack.length !== 0) {
     
     if (numtimes > maxtimes) {
@@ -205,7 +208,7 @@ var evalTort = function (statements, initialvars) {
   }
   
         
- return (env.ret) ? env.ret() : values[0][0];
+ return (turtle.steps.length >= 3) ? turtle.ret() : values[0][0];
   
 };
 
@@ -226,11 +229,144 @@ arith = {
 
 
 
-initenv = function (initialenv) {
-  initialenv.parent = null;
-  initialenv.level = 0;
-  initialenv.vars = initialenv.vars || {};
-  return initialenv;
+initenv = function (turtle) {
+  turtle =  turtle || {
+    current : [0, 0, 90],
+    com : function (c) {
+      this.steps.push(c);
+    },
+    steps : [{tag : "position", x: 0,  y : 0}, {tag : "angle", value : 90}],
+    ret : function () {
+      return this.steps;
+    }
+  };
+
+  var cos = function (a) {
+    return Math.cos(Math.PI*a/180);
+  };
+
+  var sin = function (a) {
+    return Math.sin(Math.PI*a/180);
+  };
+  
+  return {
+    turtle : turtle,
+    vars : {
+      cos : {
+        lex : turtle, 
+        body : cos
+      },
+      sin : {
+        lex : turtle, 
+        body : sin
+      },
+      print : {
+        lex : turtle, 
+        body : function (a) {
+          $("#log").append("<li>"+a+"</li>");
+        }
+      },
+      forward : {
+        lex : turtle,
+        body : function (d) {
+          //[x, y, angle]
+          var a = this.current[2] 
+            , x = Math.floor(this.current[0] + cos(a)*d + 0.5)
+            , y = Math.floor(this.current[1] + sin(a)*d + 0.5)
+            ;
+            
+          this.current = [x, y, a];
+          this.com({tag : "position", x : x, y : y});
+          return this;
+      } // body
+     },  //forward
+     left : {
+       lex : turtle,
+       body : function (a) {
+         this.current[2] +=  a;
+         this.com({tag : "angle", value : this.current[2]});
+         return this;
+       }
+     },
+     right : {
+       lex : turtle,
+       body : function (a) {
+         this.current[2] -=  a;
+         this.com({tag : "angle", value : this.current[2]});
+         return this;
+       }
+     },     
+     back : {
+        lex : turtle,
+        body : function (d) {
+          //[x, y, angle]
+          var a = this.current[2] 
+          , x = Math.floor(this.current[0] - cos(a)*d + 0.5)
+          , y = Math.floor(this.current[1] - sin(a)*d + 0.5)
+            ;
+            
+          this.current = [x, y, a];
+          this.com({tag : "position", x: x, y : y});
+          return this;
+      } // body
+     },  //back
+     penup : {
+       lex : turtle,
+       body : function () {
+          this.com({tag: "penup"});         
+       }
+     },
+     pendown : {
+       lex : turtle,
+       body : function () {
+         this.com({tag: "pendown"});         
+       }       
+     },
+     eraser : {
+       lex : turtle,
+       body : function () {
+         this.com({tag: "eraser"});
+       }
+     },
+     home : {
+       lex : turtle,
+        body : function () {
+          this.current = [0,0,90];
+          this.com({tag : "position", x: 0, y : 0});
+          this.com({tag : "angle", value : 90});
+        }
+     },
+     clear : {
+       lex : turtle,
+        body : function () {
+          this.com({tag: "clear"});
+          this.com({tag : "position", x : 0,  y :0});
+          this.com({tag : "angle", value : 90});
+          this.current = [0,0,90];
+        }
+     },
+     color : {
+       lex : turtle,
+        body : function (i) {
+          this.com({tag: "setColor", value: i});
+        }
+     },
+     speed : {
+       lex : turtle,
+        body : function (speed) { // in pixel/ms?
+          this.com({tag : "speed", value : speed});          
+        }
+     },
+     thick :  {
+       lex : turtle,
+       body : function (thick) {
+         this.com({tag: "setThick", value : thick});
+       }
+     }
+    }, //vars
+    parent : null,
+    level : level++
+  };
 };
 
 
