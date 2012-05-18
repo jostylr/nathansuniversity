@@ -1,4 +1,9 @@
+// need an object that will be an environment object and need an object to represent the turtle
+
 var Turtle;
+
+
+
 
 module.exports = Turtle = function (o) {
     o = o || {};
@@ -18,7 +23,13 @@ module.exports = Turtle = function (o) {
     this.x = this.y = 0;
     this.angle = 90;
     this.steps = [];
+    this.env = new Env(this); 
 };
+
+var Env = function (t) {
+  
+}
+
 
 var tp = Turtle.prototype;
 
