@@ -2192,7 +2192,7 @@ var newenv = function (parent, names, values) {
 
 var evalTort = function (statements, turtle) {
   var cur, env, temp, i, f
-    , maxtimes = this.maxtimes || 1e4
+    , maxtimes = this.maxtimes || 1e6
     , numtimes = 0
     , stack = [] //always an array
     , values = [[]]
@@ -2338,7 +2338,7 @@ var evalTort = function (statements, turtle) {
         store(env, cur.name, temp);   
       break;
       case 'string' :
-        values.push(cur.value);
+        values[0].push(cur.value);
       break;
       default : 
         throw "unknown tag: " + cur.tag;
@@ -4081,15 +4081,16 @@ module.exports = Turtle = function (o) {
     this.paper = Raphael(o.div || "#tortoise", w, h);
     this.originx = w / 2;
     this.originy = h / 2;
-    this.oldx = 0;
-    this.oldy = 0;
+    this.oldx = this.x = 0;
+    this.oldy = this.y = 0;
+    this.a = 90;
     this.clear();
+    this.updateTurtle();
     this.thick = o.thick || 4;
     this.speed = o.speed || 1; //fastest
     this.backg = o.backg || "white"; // white background
-    this.color = o.color || "black;"
+    this.color = o.color || "black";
     this.pen = true;
-    this.current = [0, 0, 90];
     this.steps = [{tag : "position", x : 0, y : 0}, {tag : "angle", value : 90}];
 };
 
@@ -4097,7 +4098,6 @@ var tp = Turtle.prototype;
 
 tp.com = function (c) {
   if (c && c.hasOwnProperty('tag')) {
-    console.log(c);
     this[c.tag](c);
   } else {
     throw "command without tag " + c;
@@ -4111,20 +4111,22 @@ tp.ret = function () {
 
 
 tp.position = function (c) {
-
-    if(this.pen) {
-      this.drawTo(c.x, c.y, false);
-    } else if (this.eraser) {
-        this.drawTo(c.x, c.y, true);
-      }
-
-    this.moveTurtle(c.x, c.y);
+  
+  this.oldx = this.x;
+  this.oldy = this.y;
+  this.x = c.x;
+  this.y = c.y;
+  
+  this.drawSeg();
+  this.updateTurtle();
 };
 
 
 tp.angle = function (c) {
 
-    this.rotateTurtle(c.value);
+  this.olda = this.a;
+  this.a = c.value;
+  this.updateTurtle();
 };
 
 
@@ -4145,7 +4147,7 @@ tp.eraser = function () {
 
 tp.clear = function () {
   this.paper.clear();
-  this.pen = true;
+  this.pendown();
   this.turtleimg = this.paper.image(
       "http://nathansuniversity.com/gfx/turtle2.png",
       0, 0, 64, 64);
@@ -4158,40 +4160,40 @@ tp.setColor = function (c) {
 
 tp.setThick = function (c) {
   this.thick = c.value;
-}
+};
 
 tp.speed = function (c) {
   this.speed = c.value;
 };
 
-tp.moveTurtle = function (x, y) {
+tp.updateTurtle = function () {
   this.turtleimg.attr({
-    x: x - 32 + this.originx,
-    y: - y - 32 + this.originy
+    x: this.x - 32 + this.originx,
+    y: - this.y - 32 + this.originy,
+    transform: "r" + (-this.a)
   });
-  
-  this.oldx = x;
-  this.oldy = y;
-  
+    
   this.turtleimg.toFront();
+  
+  //hack
+  this.current = [this.x, this.y, this.a];
 };
 
-tp.rotateTurtle = function (a) {
-  
-  this.turtleimg.attr({
-    transform: "r" + (-a)
-  });
-  
-  this.turtleimg.toFront();  
-}
+Turtle.prototype.drawSeg = function () {
+  var x1, y1, params, path;
 
-Turtle.prototype.drawTo = function (x, y, erase) {
-    var x1 = this.oldx + this.originx;
-    var y1 = this.originy - this.oldy;
-    console.log(x1, y1, x + this.originx, this.originy - y)
-    var params = { "stroke-width": this.thick, "color" : (erase ? this.backg : this.color) };
-    var path = this.paper.path(Raphael.format("M{0},{1}L{2},{3}",
-        x1, y1, x + this.originx,  this.originy - y)).attr(params);
+  x1 = this.oldx + this.originx;
+  y1 = this.originy - this.oldy;    
+  params = { 
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    "stroke":  (this.eraser ? this.backg : this.color),
+    "stroke-width": this.thick
+    };
+  if (this.pen || this.eraser) {
+    path = this.paper.path(Raphael.format("M{0},{1}L{2},{3}",
+        x1, y1, this.x + this.originx,  this.originy - this.y)).attr(params);
+  }
 };
 
 });

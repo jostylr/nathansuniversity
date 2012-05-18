@@ -129,65 +129,75 @@
   </div>
   
   <div class="hide" id="examples">
-  <!--  <textarea id="Rt Triangle">forward(140);
+  <textarea id="Rt Triangle">forward(140);
 right(135); 
 forward(200); 
 home();</textarea>
--->
     <textarea id="Reg polygons">
-define regpoly (rad, sides) {
-  penup();
-  home();
-  var angle;
-  angle := 360/sides;
-  var length;
-  length := 2*cos(angle/2)*rad;
-  print(length);
-  left(angle/2);
-  forward(rad);
-  left(3*angle/2);
-  pendown();
-  forward(length);
-  
-}
-var r;
-r := 40; 
-regpoly(50, 4);
+      define regpoly (rad, sides) {
+        penup();
+        home();
+        right(90);
+        forward(70);
+        left(90);
+        var angle;
+        angle := 360/sides;
+        var length;
+        length := 2*cos(angle/2)*rad;
+        right(angle/2);
+        forward(rad);
+        left(3*angle/2);
+        pendown();
+        repeat (sides) {
+          forward(length);
+          left(angle);
+        }
+
+      }
+      var count;
+      count := 3; 
+      repeat (7) {
+        regpoly(50, count);
+        count := count + 1; 
+      }
+      penup();
+      home();
 </textarea>
 
 <textarea id="Frac Tree (lordlorik, mcleopold)">
-define curve(size, angle, scale, count) {
-  if (count > 0) {
-    forward(size);
-    left(angle);
-    curve(size * scale, angle, scale, count - 1);
+  define curve(size, angle, scale, count) {
+    if (count > 0) {
+      forward(size);
+      left(angle);
+      curve(size * scale, angle, scale, count - 1);
 
-	right(90);
-	curve(size * scale * scale, angle, scale, count - 1);
-	left(90);
+  	right(90);
+  	curve(size * scale * scale, angle, scale, count - 1);
+  	left(90);
 
-	right(angle + 180);
-	pendown();
-	if (count < 2) {
-      color('#0a0');
-      thick(10);
+  	right(angle + 180);
+  	pendown();
+  	if (count < 2) {
+        color('#0a0');
+        thick(4);
+      }
+      if (count > 2) {
+        color('#a50');
+        thick(2);
+      }
+  	forward(size);
+  	penup();
+  	left(180);
     }
-    if (count > 2) {
-      color('#a50');
-      thick(count);
-    }
-	forward(size);
-	penup();
-	left(180);
   }
-}
- 
-penup();
-right(180);
-forward(100);
-right(180);
-curve(100, 29, 0.80, 10);
-</textarea>
+
+  penup();
+  right(180);
+  forward(100);
+  right(180);
+  curve(100, 29, 0.75, 10);
+
+</textarea> 
   </div>
   
 </body>
