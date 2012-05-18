@@ -14,8 +14,9 @@ fs.writeFileSync(dir + "node_modules/tort.js", "module.exports = "+ scheem.toSou
 fs.writeFileSync(dir + "node_modules/evaltort.js", fs.readFileSync("evaltort.js"));
 
 
+exec = require('child_process').exec;
 exec("browserify -e entry.js -o run.js", {cwd:dir}, function (err, out, oerr) {
-  exec("uglifyjs --overwrite run.js", {cwd:dir}, function (err, out, oerr) {});
+  //exec("uglifyjs --overwrite run.js", {cwd:dir}, function (err, out, oerr) {});
 });
 
 

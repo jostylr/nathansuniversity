@@ -51,13 +51,12 @@ var newenv = function (parent, names, values) {
   return ret;
 };
 
-var evalTort = function (statements, turtle) {
+var evalTort = function (statements, initialvars) {
   var cur, env, temp, i, f
     , maxtimes = this.maxtimes || 1e4
     , numtimes = 0
     , stack = [] //always an array
     , values = [[]]
-    , turtle
   ;
 
 
@@ -81,10 +80,8 @@ var evalTort = function (statements, turtle) {
   //var 
   
   //initial environment
-  env = initenv(turtle);
-  
-  turtle = env.turtle; 
-         
+  env = initenv(initialvars || {});
+           
   while (stack.length !== 0) {
     
     if (numtimes > maxtimes) {
@@ -162,6 +159,7 @@ var evalTort = function (statements, turtle) {
       case 'docall' :
         f = cur.f;
         temp = values.shift();
+        temp.reverse(); //values are in wrong order? 
         if (_.isFunction(f.body)) {
           // put body as function, ignore args
           // the this for the function will be the environment
@@ -197,6 +195,9 @@ var evalTort = function (statements, turtle) {
         //debugF.log("doassign", cur.name, temp, stack.length);
         store(env, cur.name, temp);   
       break;
+      case 'string' :
+        values[0].push(cur.value);
+      break;
       default : 
         throw "unknown tag: " + cur.tag;
     }
@@ -204,7 +205,7 @@ var evalTort = function (statements, turtle) {
   }
   
         
- return (turtle.steps.length >= 3) ? turtle.ret() : values[0][0];
+ return (env.ret) ? env.ret() : values[0][0];
   
 };
 
@@ -225,124 +226,11 @@ arith = {
 
 
 
-initenv = function (turtle) {
-  turtle =  turtle || {
-    current : [0, 0, 90],
-    com : function (c) {
-      this.steps.push(c);
-    },
-    steps : [{tag : "position", x: 0,  y : 0}, {tag : "angle", value : 90}],
-    ret : function () {
-      return this.steps;
-    }
-  };
-
-  var cos = function (a) {
-    return Math.cos(Math.PI*a/180);
-  };
-
-  var sin = function (a) {
-    return Math.sin(Math.PI*a/180);
-  };
-  
-  return {
-    turtle : turtle,
-    vars : {
-      forward : {
-        lex : turtle,
-        body : function (d) {
-          //[x, y, angle]
-          var a = this.current[2] 
-            , x = Math.floor(this.current[0] + cos(a)*d + 0.5)
-            , y = Math.floor(this.current[1] + sin(a)*d + 0.5)
-            ;
-            
-          this.current = [x, y, a];
-          this.com({tag : "position", x : x, y : y});
-          return this;
-      } // body
-     },  //forward
-     left : {
-       lex : turtle,
-       body : function (a) {
-         this.current[2] +=  a;
-         this.com({tag : "angle", value : this.current[2]});
-         return this;
-       }
-     },
-     right : {
-       lex : turtle,
-       body : function (a) {
-         this.current[2] -=  a;
-         this.com({tag : "angle", value : this.current[2]});
-         return this;
-       }
-     },     
-     back : {
-        lex : turtle,
-        body : function (d) {
-          //[x, y, angle]
-          var a = this.current[2] 
-          , x = Math.floor(this.current[0] - cos(a)*d + 0.5)
-          , y = Math.floor(this.current[1] - sin(a)*d + 0.5)
-            ;
-            
-          this.current = [x, y, a];
-          this.com({tag : "position", x: x, y : y});
-          return this;
-      } // body
-     },  //back
-     penup : {
-       lex : turtle,
-       body : function () {
-          this.com({tag: "penup"});         
-       }
-     },
-     pendown : {
-       lex : turtle,
-       body : function () {
-         this.com({tag: "pendown"});         
-       }       
-     },
-     eraser : {
-       lex : turtle,
-       body : function () {
-         this.com({tag: "eraser"});
-       }
-     },
-     home : {
-       lex : turtle,
-        body : function () {
-          this.current = [0,0,90];
-          this.com({tag : "position", x: 0, y : 0});
-          this.com({tag : "angle", value : 90});
-        }
-     },
-     clear : {
-       lex : turtle,
-        body : function () {
-          this.com({tag: "clear"});
-          this.com({tag : "position", x : 0,  y :0});
-          this.com({tag : "angle", value : 90});
-          this.current = [0,0,90];
-        }
-     },
-     color : {
-       lex : turtle,
-        body : function (i) {
-          this.com({tag: "color", value: str});
-        }
-     },
-     speed : {
-       lex : turtle,
-        body : function (speed) { // in pixel/ms?
-          this.com({tag : "speed", value : speed});          
-        }
-     }
-    }, //vars
-    parent : null,
-    level : level++
-  };
+initenv = function (initialenv) {
+  initialenv.parent = null;
+  initialenv.level = 0;
+  initialenv.vars = initialenv.vars || {};
+  return initialenv;
 };
 
 

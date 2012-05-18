@@ -1,5 +1,5 @@
 start = 
-  s : statement+
+  ws s : statement+ ws
   {s.reverse(); return  s; }
   
   
