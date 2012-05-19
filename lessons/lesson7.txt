@@ -1,0 +1,23 @@
+7.2
+var factorialCPS = function (n, cont) {
+    if (n <= 1) {
+        return cont(1);
+    } else {
+        var new_cont = function (v) {
+            return cont(v*n);
+        };
+        return factorialCPS(n-1, new_cont);
+    }
+};
+
+7.3
+var factorialThunk = function (n, cont) {
+    if (n <= 1) {
+       return thunk(cont, [1]);
+    } else {
+        var new_cont = function (v) {
+            return thunk(cont, [v*n]);
+        };
+        return thunk(factorialThunk, [n-1, new_cont]);
+    }
+};
