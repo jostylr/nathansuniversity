@@ -21,3 +21,9 @@ var factorialThunk = function (n, cont) {
         return thunk(factorialThunk, [n-1, new_cont]);
     }
 };
+
+7.4
+var bigSum = function (n) {
+    return trampoline(sumThunk(n, thunkValue));
+};
+
