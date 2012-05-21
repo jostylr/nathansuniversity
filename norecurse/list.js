@@ -62,11 +62,25 @@ lp.get = function (n, tag) {
   tag = tag || "next";
 
   if (n <= 1) {
+    return this.item;
+  }
+
+  if (this.hasOwnProperty(tag)) {
+    return this[tag].get(n-1, tag);
+  } else {
+    return null;
+  }
+}
+
+lp.slice = function (n, tag) {
+  tag = tag || "next";
+
+  if (n <= 1) {
     return this;
   }
 
   if (this.hasOwnProperty(tag)) {
-    return this[tag].
+    return this[tag].get(n-1, tag);
   } else {
     return null;
   }

@@ -18,7 +18,13 @@ var applySecond = function () {
 var suites = {
   'List': function () {
     var list = applySecond(List, arguments)
-    return list.toArray();
+
+    return list.itemsToArray([]);
+  },
+  'get': function (arr, n, tag) {
+    var list = new List(arr, tag);
+
+    return list.get(n, tag);
   }
 };
 
@@ -29,39 +35,92 @@ util = require("util");
 suite("List");
 
 test("1", function () {
-  var result = suites.List.apply(null, [1]);
+  var result = suites.List.apply(null, [
+    [1]
+  ]);
   var pass = _.isEqual(result, [1]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 1 ]" + "\n     Input:  [1]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 1 ]" + "\n     Input:  [[1]]");
   }
 });
 
 test("5,6", function () {
-  var result = suites.List.apply(null, [5, 6]);
+  var result = suites.List.apply(null, [
+    [5, 6]
+  ]);
   var pass = _.isEqual(result, [5, 6]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 5, 6 ]" + "\n     Input:  [5,6]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 5, 6 ]" + "\n     Input:  [[5,6]]");
   }
 });
 
 test("[]", function () {
-  var result = suites.List.apply(null, []);
-  var pass = _.isEqual(result, [undefined]);
-  if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ undefined ]" + "\n     Input:  []");
+  var flag = true;
+  try {
+    suites.List.apply(null, []);
+  }
+  catch (e) {
+    flag = false;
+    if (!_.isEqual(e.toString(), 'TypeError: Cannot read property '
+    0 ' of undefined')) {
+      throw new Error("wrong error", e);
+    }
+  }
+  if (flag) {
+    throw new Error("failed to throw error");
   }
 });
 
 test("art,3,4,[object Object]", function () {
-  var result = suites.List.apply(null, ['art', [3, 4],
-  {
-    a: 4
-  }]);
+  var result = suites.List.apply(null, [
+    ['art', [3, 4],
+    {
+      a: 4
+    }]
+  ]);
   var pass = _.isEqual(result, ['art', [3, 4],
   {
     a: 4
   }]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "[ 'art', [ 3, 4 ], { a: 4 } ]" + "\n     Input:  ['art',[3,4],{a:4}]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 'art', [ 3, 4 ], { a: 4 } ]" + "\n     Input:  [['art',[3,4],{a:4}]]");
+  }
+});
+
+suite("get");
+
+test("4,3,1,2", function () {
+  var result = suites.get.apply(null, [
+    [4, 3, 1], 2]);
+  var pass = _.isEqual(result, 3);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "3" + "\n     Input:  [[4,3,1],2]");
+  }
+});
+
+test("4,3,1,3", function () {
+  var result = suites.get.apply(null, [
+    [4, 3, 1], 3]);
+  var pass = _.isEqual(result, 1);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "1" + "\n     Input:  [[4,3,1],3]");
+  }
+});
+
+test("4,3,1,4", function () {
+  var result = suites.get.apply(null, [
+    [4, 3, 1], 4]);
+  var pass = _.isEqual(result, null);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "null" + "\n     Input:  [[4,3,1],4]");
+  }
+});
+
+test("4,3,1,0", function () {
+  var result = suites.get.apply(null, [
+    [4, 3, 1], 0]);
+  var pass = _.isEqual(result, 4);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "4" + "\n     Input:  [[4,3,1],0]");
   }
 });
