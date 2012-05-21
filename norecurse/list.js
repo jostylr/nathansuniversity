@@ -3,33 +3,71 @@
 
 //make lists and get, reverse, sort them
 
-var List = function () {
-  var previous, i
-    , initial = {}
-    , current = initial
-    , n = arguments.length
+// uses recursion to construct lists
+var List = function (items, tag, existing) {
 
-console.log(arguments);
+    var item = items[0];
+    tag = tag || "next";
 
-  for (i = 0; i < n; i += 1) {
-    previous = current
-    current = {item : arguments[i], previous : previous}
-    previous.next = current
-  }
+    //base case
+    if (items.length === 1) {
+      if (item instanceof List) {
+        return item;
+      } else {
+        this.item = item;
+        return this;
+      }
+    }
 
-  initial.previous = null;
+    // recursive 
+    var next = new List(items.slice(1), tag, existing);
 
-  this.begin = initial;
-  this.end = current;
+    if (item instanceof List) {
+      if (item.hasOwnProperty(tag)){
 
-  return this
+        if (existing === "follow") {   // add next at end
+          item.end()[tag] = next;
+        } else { // replace pointer from old list
+          item[tag] = next;
+        }
 
-}
+      } else {
+
+        item[tag] = next;
+      }
+      return item;
+    } else {
+      this.item = item; 
+      this[tag] = next; 
+      return this;
+    }
+};
 
 module.exports = List
 
 var lp = List.prototype
 
-lp.get = function (n) {
+lp.itemsToArray = function (arr, tag) {
+  tag = tag || "next";
+  arr.push(this.item);
+  if (this.hasOwnProperty(tag)) {
+    return this[tag].itemsToArray(arr, tag);
+  } else {
+    return arr
+  }
 
+}
+
+lp.get = function (n, tag) {
+  tag = tag || "next";
+
+  if (n <= 1) {
+    return this;
+  }
+
+  if (this.hasOwnProperty(tag)) {
+    return this[tag].
+  } else {
+    return null;
+  }
 }

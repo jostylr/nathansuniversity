@@ -16,8 +16,9 @@ var applySecond = function () {
   }();
 
 var suites = {
-  'create': function () {
-    return applySecond(List, arguments)
+  'List': function () {
+    var list = applySecond(List, arguments)
+    return list.toArray();
   }
 };
 
@@ -25,23 +26,42 @@ _ = require("underscore");
 
 util = require("util");
 
-suite("create");
+suite("List");
 
-test("1 item,5", function () {
-  var result = suites.create.apply(null, ['1 item', [5]]);
-  var pass = _.isEqual(result, {
-    list: {
-      next: {
-        item: '1 item',
-        previous: [Circular],
-        next: {
-          item: [5],
-          previous: [Circular]
-        }
-      }
-    }
-  });
+test("1", function () {
+  var result = suites.List.apply(null, [1]);
+  var pass = _.isEqual(result, [1]);
   if (!pass) {
-    throw new Error(util.inspect(result) + " not equal to " + "{ list: \n   { next: \n      { item: '1 item',\n        previous: [Circular],\n        next: { item: [ 5 ], previous: [Circular] } } } }" + "\n     Input:  ['1item',[5]]");
+    throw new Error(util.inspect(result) + " not equal to " + "[ 1 ]" + "\n     Input:  [1]");
+  }
+});
+
+test("5,6", function () {
+  var result = suites.List.apply(null, [5, 6]);
+  var pass = _.isEqual(result, [5, 6]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 5, 6 ]" + "\n     Input:  [5,6]");
+  }
+});
+
+test("[]", function () {
+  var result = suites.List.apply(null, []);
+  var pass = _.isEqual(result, [undefined]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ undefined ]" + "\n     Input:  []");
+  }
+});
+
+test("art,3,4,[object Object]", function () {
+  var result = suites.List.apply(null, ['art', [3, 4],
+  {
+    a: 4
+  }]);
+  var pass = _.isEqual(result, ['art', [3, 4],
+  {
+    a: 4
+  }]);
+  if (!pass) {
+    throw new Error(util.inspect(result) + " not equal to " + "[ 'art', [ 3, 4 ], { a: 4 } ]" + "\n     Input:  ['art',[3,4],{a:4}]");
   }
 });

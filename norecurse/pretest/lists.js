@@ -18,14 +18,37 @@ var applySecond = function () {
 //----
 module.exports.suites = {
   'List': function () {
-    return applySecond(List, arguments)
+    var list = applySecond(List, arguments)
+    console.log(list);
+    return list.itemsToArray([]);
   }
 };
 
 
 var data = {
-  'List': {
-
+  List: {
+    '1': {
+      inp: [[1]],
+      out: [1]
+    },
+    '5,6': {
+      inp: [[5, 6]],
+      out: [5, 6]
+    },
+    '[]': {
+      inp: [],
+      out: [undefined]
+    },
+    'art,3,4,[object Object]': {
+      inp: [['art', [3, 4],
+            {
+              a: 4
+            }]],
+      out: ['art', [3, 4],
+      {
+        a: 4
+      }]
+    }
   }
 };
 
