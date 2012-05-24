@@ -1,0 +1,87 @@
+var num = 4;
+
+var rFactorial = function (n) {
+	if (n <= 1) {
+		return 1;
+	} else {
+		console.log("r desc", n-1);
+		var d = rFactorial(n-1)*n;
+		console.log("r asc", d);
+		return d;
+	}
+};
+
+console.log("r end", rFactorial(num));
+
+var cFactorial = function (n, cont) {
+	if (n <= 1) {
+		console.log(1);
+		return cont(1);
+	} else {
+		var newCont = function (v) {
+			console.log("cont up", v, "n =", n);
+			return cont(v*n);
+		}
+		console.log("c desc", n-1);
+		var d = cFactorial(n-1, newCont);
+		console.log("c asc", d);
+		return d;
+	}
+};
+
+var ans = cFactorial(num, function (x) {console.log("initial cont", x); return x;});
+
+console.log("c with return end", ans);
+
+var cnorFactorial = function (n, cont) {
+	if (n <= 1) {
+		console.log(1);
+		cont(1);
+	} else {
+		var newCont = function (v) {
+			console.log("cont up", v, "n =", n);
+			cont(v*n);
+		}
+		console.log("c desc", n-1);
+		cFactorial(n-1, newCont);
+	}
+};
+
+var store; 
+
+cnorFactorial(num, function (x) {console.log("base", x); store = x;});
+
+console.log("end no return", store);
+
+var thunk = function (f, lst, name) {
+	//console.log("thunk created:" name)
+    return { tag: "thunk", func: f, args: lst, name: name };
+};
+
+var thunkValue = function (x) {
+	console.log("basic cont", x);
+    return { tag: "value", val: x };
+};
+
+var tfactorial = function (n, cont) {
+ 	var t;
+    if (n <= 1) {
+    	console.log("base", 1);
+        t = thunk(cont, [1]);
+        console.log("base t", t);
+        return t;
+    } else {
+        var new_cont = function (v) {
+        	console.log("cont up", v, "n =", n);
+            t = thunk(cont, [v*n]);
+            console.log("post t", t);
+            return t;
+        };
+        console.log("before recurse");
+        t = thunk(factorialThunk, [n-1, new_cont]);
+        console.log("after recurse", t);
+        return t;
+    }
+};
+
+console.log("end thunked fact", tfactorial(10, ))
