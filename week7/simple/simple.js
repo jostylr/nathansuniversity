@@ -129,7 +129,7 @@ var stacker = function (func, args) {
 };
 
 var mult = function (a) {
-    this.env.ret = a;
+    this.env.ret *= a;
 };
 
 var sfactorial = function (n) {
