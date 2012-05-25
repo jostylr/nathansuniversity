@@ -45,7 +45,7 @@ var cnorFactorial = function (n, cont) {
             cont(v*n);
         };
         console.log("c desc", n-1);
-        cFactorial(n-1, newCont);
+        cnorFactorial(n-1, newCont);
     }
 };
 
@@ -133,6 +133,7 @@ var mult = function (a) {
 };
 
 var sfactorial = function (n) {
+    //console.log(this);
     if (n <= 1) {
         console.log("base", 1);
         this.env.ret = 1;
@@ -142,4 +143,4 @@ var sfactorial = function (n) {
     }
 };
 
-console.log("end stack fact", stacker(sfactorial, [4]));
+console.log("end stack fact", stacker(sfactorial, [num]));
