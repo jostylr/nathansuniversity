@@ -1,0 +1,92 @@
+8.2
+
+var evalExpr = function(expr, env, cont) {
+    if(typeof expr === 'number') {
+        return thunk(cont, expr);
+    }
+    switch(expr[0]) {
+        case '+':
+            return thunk(
+                evalExpr, expr[1], env,
+                function(v1) {
+                    return thunk(
+                        evalExpr, expr[2], env,
+                        function(v2) {
+                            return thunk(cont, v1 + v2);
+                        }
+                    );
+                }
+            );
+        // Add multiplication
+                case '*':
+            return thunk(
+                evalExpr, expr[1], env,
+                function(v1) {
+                    return thunk(
+                        evalExpr, expr[2], env,
+                        function(v2) {
+                            return thunk(cont, v1 * v2);
+                        }
+                    );
+                }
+            );
+    
+        default:
+            throw new Error("Unknown form");
+    }
+};
+
+
+8.3
+var step = function (state) {
+    // Your code here
+    var thk = state.data;
+    if (thk.tag === "value") {
+         state.data = thk.val;
+         state.done = true;
+    } else if (thk.tag === "thunk") {
+        state.data = thk.func.apply(null, thk.args);
+        state.done = false;
+    } else {
+       throw new Error("Bad thunk");
+    }
+    
+};
+
+8.4
+var evalTwo = function (expr0, expr1, env) {
+    // Your code here
+    var state1 = stepStart(expr0, env);
+    var state2 = stepStart(expr1, env);
+    while(true) {
+        if (! state1.done) {
+            step(state1);
+        }
+        if (! state2.done) {
+            step(state2);
+        }
+        if (state1.done && state2.done) {
+            break;
+        }
+    }
+};
+
+8.5
+
+var evalDiv = function (top, bottom, env, cont, xcont) {
+    // Here's the code for addition
+    // to help you get going.
+    return thunk(
+        evalExpr, top, env,
+        function(v1) {
+            return thunk(
+                evalExpr, bottom, env,
+                function(v2) {
+                    if (v2 === 0) {
+                      return thunk(xcont, "EXCEPTION!");
+                    }
+                    return thunk(cont, v1 / v2);
+            }, xcont);
+    }, xcont);
+};
+
