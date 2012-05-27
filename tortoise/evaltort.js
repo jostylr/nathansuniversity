@@ -1,4 +1,5 @@
-/*globals module, require, console, exports*/
+/*globals module, require, console, exports, $*/
+/*jshint laxcomma: true*/
 
 var _ = require('underscore');
 var util = require('util');
@@ -57,8 +58,7 @@ var evalTort = function (statements, turtle) {
     , numtimes = 0
     , stack = [] //always an array
     , values = [[]]
-    , turtle
-  ;
+    ;
 
 
 
@@ -354,7 +354,7 @@ initenv = function (turtle) {
      speed : {
        lex : turtle,
         body : function (speed) { // in pixel/ms?
-          this.com({tag : "speed", value : speed});          
+          this.com({tag : "setSpeed", value : speed});          
         }
      },
      thick :  {

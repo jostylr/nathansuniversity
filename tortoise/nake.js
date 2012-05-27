@@ -13,6 +13,8 @@ fs.writeFileSync(dir + "node_modules/tort.js", "module.exports = "+ scheem.toSou
 //copy over evaltort  
 fs.writeFileSync(dir + "node_modules/evaltort.js", fs.readFileSync("evaltort.js"));
 
+fs.writeFileSync(dir + "node_modules/Turtle.js", fs.readFileSync("Turtle.js"));
+
 
 exec = require('child_process').exec;
 exec("browserify -e entry.js -o run.js", {cwd:dir}, function (err, out, oerr) {

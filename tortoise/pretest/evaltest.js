@@ -50,7 +50,7 @@ module.exports.suites = {
   },
   'fun': function () {
     return run.apply(null, arguments);
-  },
+  }
 };
 
 
@@ -136,14 +136,12 @@ var data = {
       inp: ['var test; test := 5 +3; test;'],
       out: 8
     }
-  }, 
-  repeat: {
+  }, repeat: {
     'var x; repeat(10) { x := x+1; } x;': {
       inp: ['var x; repeat(10) { x := x+1; } x;'],
       out: 10
     }
-  }, 
-  fun: {
+  }, fun: {
     'define id (x) {x;} id(3);': {
       inp: ['define id (x) {x;} id(3);'],
       out: 3
@@ -160,7 +158,7 @@ var data = {
       inp: ['define f (x, y) {x;} f(3, 4);'],
       out: 3
     }
-  } 
+  }
 };
 
 
