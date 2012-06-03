@@ -1,0 +1,72 @@
+9.2
+
+var prettyType = function (type) {
+    // Your code here
+    if (type.tag === "basetype") {
+        return type.name;
+    } else if (type.tag === "arrowtype") {
+        return "(" + prettyType(type.left) + " -> " + prettyType(type.right) + ")";
+    } else {
+        throw "Unknown type";
+    }
+};
+
+9.3
+
+var app2 = function (f) {
+    return function (x) {
+        return function (y) {
+            return f(x)(y);
+        };
+    };
+};
+
+9.4
+var sameType = function (a, b) {
+    // Your code here
+    if (a.tag === "basetype" && b.tag === "basetype") {
+        if (a.name === b.name) {
+            return true;
+        } else {
+            return false;
+        }
+        
+    } else if (a.tag === "arrowtype" && b.tag === "arrowtype") {
+      return (sameType(a.left, b.left) && sameType(a.right, b.right));  
+    } else {
+        return false;
+    }
+};
+
+9.5
+
+var typeExprTester = function (context) {
+    // Your code here
+    return typeExpr(['f', 'x'], context);
+};
+
+9.6
+
+var typeExprIf = function (expr, context) {
+    // Your code here
+    if (typeExpr(expr[1], context).name !== "bool") {
+        throw new Error("Condition not a boolean");
+    }
+    if (sameType(typeExpr(expr[2], context), typeExpr(expr[3], context))) {
+        return typeExpr(expr[2], context);
+    } else {
+        console.log(expr, "failed to be the same type");
+        throw new Error("Not consistent answer type");
+    }
+};
+
+9.7
+
+var typeExprLambdaOne = function (expr, context) {
+    // Your code here
+    var newContext = { bindings : {}, outer : context};
+    newContext.bindings[expr[1]] = expr[2];
+    var result = typeExpr(expr[3], newContext);
+    console.log(result, newContext);
+    return {tag : "arrowtype", left : expr[2], right : result};
+};
