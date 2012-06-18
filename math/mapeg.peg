@@ -1,0 +1,87 @@
+// parser definition for mathpeg
+// mainly parsing block structure
+
+
+start = 
+  wsn s : statement+ wsn
+  {s.reverse(); return  s; }
+  
+  
+statement = 
+  wsn b: block ws stEnd
+  { return b;}
+  / wsn e: expr ws stEnd
+  { return e;}
+
+stEnd = 
+  [\n\r] 
+  / ";" 
+  / !.
+  / & (rightBracket) 
+
+block = 
+  wsn lb : leftBracket wsn s: statement+ wsn rb : rightBracket ws
+  {s.reverse(); return {tag: "block", left: lb, stmnt : s, right : rb};}
+
+leftBracket = 
+  "(" / "[" / "{" / "\(" / "\[" / "\{" / ":" [\n]
+
+rightBracket = 
+  ")" / "]" / "}" / "\)" / "\]" / "\}" / "." [\n]  
+
+abshelper = 
+  s: (symbol) e: expr
+  {return [s].concat(e);}
+
+abs = 
+  wsn "|" w : (word / block ) wsn a: abshelper? wsn "|" wsn
+  {return {tag : "abs", expr :  [w].concat(a)};}
+
+
+// expressions -- no operator processing
+expr = 
+ e: wordws+
+ {return e;}
+  
+wordws = 
+  ws w: word ws
+  {return w;}
+
+word = 
+  i : identifier
+  {return {tag: "tok", name : i}; }
+  / number
+  / string
+  / special
+  / block
+  / abs 
+  / symbol
+  
+special = 
+  ws "'" i :[^ \n\r\t]+ & ([ \n\r\t] / !.) ws
+  {return i.join('');}
+
+symbol = 
+  !( leftBracket / rightBracket) a: [^A-Za-z0-9 \r\n\t]+
+  {return a.join('');}
+
+string = 
+  '"' str : [^"]+ '"' 
+  { return {tag : "string", value : str.join("")} }
+
+identifier = 
+  first: [a-zA-Z] rest : [a-zA-Z0-9]*
+  {return first + rest.join("");}
+  
+  
+number = 
+  n : "-" ? left : [0-9]+ "." right : [0-9]*
+  {return parseFloat(n + left.join("") + '.' + right.join("")); }  
+  / n : "-" ? left : [0-9]+ 
+  {return parseFloat(n + left.join("")); }  
+  
+
+  
+wsn = [ \n\r\t]*
+
+ws = [ \t]*
