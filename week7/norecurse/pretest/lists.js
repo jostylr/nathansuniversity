@@ -6,8 +6,9 @@ var List = require('../list.js');
 
 //----
 module.exports.suites = {
-  'List': function () {
-    var list = applySecond(List, arguments)
+  'List': function (arr, tag, existing) {
+    var list = List.newTrampoline(
+      new List(arr, tag, existing, ))
     
     return list.itemsToArray([]);
   },

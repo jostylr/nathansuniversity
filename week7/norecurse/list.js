@@ -67,7 +67,7 @@ List.newTrampoline = function (thk) {
       return thk.val;
     } 
     if (thk.tag === "thunk") {
-      thk = applySecond(thk.func, thk.args);
+      thk = new thk.func(thk.args[0], thnk.args[1], thnk.args[2]);
     }
   }
 };

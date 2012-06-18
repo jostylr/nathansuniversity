@@ -1,0 +1,22 @@
+Use peg.js to do block structure parsing and tokenizing
+
+To do statement parsing, we do a stack based approach to convert postfix to infix.
+
+3 + 4 - 2/5 + 6^2^3  =  (+ 3 4 - (/ 2 5) (^ 6 2 3)) but ^ pops whereas the others shift. 
+
+{tag: "+", val : [3, 4, {tag : "-", val : {tag: "mul", val : [2, {tag:"/", val: 5}]}}, 
+  {tag: "pow", val : [6, 2, 3] } ]}
+
+
+(3 - 2 - 4) =  (3- 2) - 4  not  3 - (2 - 4)  (+ 3 (- 2)  (- 4) ) 
+
+(5 / 2 / 3) = (5/2)/3     (* 5 /2 /3) since  5/2 = 5 * 1/2
+
+
+no interval notation. instead  3 < x <= 5  
+
+sum_(i = 0)^5  is parsed as  sum with a lower = (i = 0) and upper = (5) 
+
+a_i_j_k is parsed as a[i][j][k]  
+
+a(1, 2, 3)  vs. a_1_2_3    a_'i_'j_'k

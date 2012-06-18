@@ -1,0 +1,82 @@
+9.2
+
+var compileExpr = function (expr) {
+    if (typeof expr === 'number') {
+        return expr.toString();
+    }
+    switch(expr.tag) {
+        case '+':
+            return '(' + compileExpr(expr.left) + ')+(' +
+                         compileExpr(expr.right) + ')';
+        case '*':
+            return '(' + compileExpr(expr.left) + ')*(' +
+                         compileExpr(expr.right) + ')';
+
+        case '-':
+            return '(' + compileExpr(expr.left) + ')-(' +
+                         compileExpr(expr.right) + ')';
+
+        case '/':
+            return '(' + compileExpr(expr.left) + ')/(' +
+                         compileExpr(expr.right) + ')';
+        case '<':
+            return '(' + compileExpr(expr.left) + ')<(' +
+                         compileExpr(expr.right) + ')';
+            
+            
+        default:
+            throw new Error('Unknown tag ' + expr.tag);
+    }
+};
+
+9.3
+
+var compileEnvironment = function (env) {
+    var str=[], i, n = env.length;
+    // Your code here
+    for (i = 0; i < n; i += 1) {
+        str.push('var ' + env[i][0] + " = "+ env[i][1].toString() + ";\n");
+    }
+    return str.join('');
+};
+
+9.4
+
+var compileExpr = function (expr) {
+    if (typeof expr === 'number') {
+        return expr.toString();
+    }
+    switch(expr.tag) {
+        case '+':
+            return '(' + compileExpr(expr.left) + ')+(' +
+                         compileExpr(expr.right) + ')';
+        case 'ident':
+            return expr.name;
+        case 'call':
+            return expr.name+"("+ expr.args.map(compileExpr).join(",")+")"; // Do stuff here
+        default:
+            throw new Error('Unknown tag ' + expr.tag);
+    }
+};
+
+
+9.5
+
+var compileStatements = function (stmts, is_funcbody) {
+    // Your code here
+    return "var _res;\n" + 
+        stmts.map(compileStatement).join("") +
+        (is_funcbody ? "return _res;\n" : ""); 
+};
+
+9.6
+
+var compileRepeat = function (stmt) {
+    // Your code here
+    var body = "function () {\n" +
+        compileStatements(stmt.body, true) +
+        "}";
+    var expr = compileExpr(stmt.expr);
+    console.log("out", expr, body);
+    return "_res = repeat(" + expr + ", " + body + ");\n";
+};

@@ -7,6 +7,39 @@ Goal: Implement a full computing language using just the notions in mathematics.
 Naming: Forcing a math peg into a programming hole. Also, PegJS powers the parsing.
 
 
+## Peg processing
+
+The idea is that the language should be entirely sculptable. Therefore, we start with the peg doing just tokenizing and parsing the blocks. 
+
+### Statements 
+
+expression ended by newline or ;   Newlines automatically end lines unless \ ends a line which then continues. ws including  // comments  are allowed.
+
+### Expressions
+
+A set of tokens
+
+### Blocks
+These are bracketed: expressions, comma'd expression, and statements. 
+
+{([ and slashed: \{\(\[
+
+
+A special expression block is absolute value. It is of the form | number/word ... |  or | block ... |
+
+### Tokens
+
+* String is a "stuff"   The double quote can be multiline. 
+* Special is 'wh$2  This is terminated by whitespace. The single quote does not have a match, it just waits for a whitespace.
+* Words:  `[a-zA-Z][a-zA-Z0-9]*`  No underscore or other symbols. 
+* Symbols:  non-word esque. It terminates at first word/number. 
+
+
+|(3 + z) + |3|x| | | word, number, bracketed expression
+
+----
+#Old
+
 ## Valid Variable Names
 
 Single letters or 'Abce or "Abc de" := 5. A string is checked for existence and if it is not, then it is used as is. Otherwise, it is. To quote an existing string, use '"Abc de" is just Abc de.  
@@ -66,4 +99,16 @@ Sum:  sum_i=0^n a_i
 
 ### While loop
 limit 
+
+---
+
+The semicolon ends blocks. Certain constructs create blocks. Variables are scoped locally automatically.
+
+Global scopre \x while \[name]x  would be x in the named scope
+
+---------
+
+
+
+
 

@@ -1,0 +1,44 @@
+newton (f, x = 0, max = 20, precision = 1E-10, left = -100, right = 100) = 
+	while[max, x=false] ( |f(x)| > precision) 
+		x = a + f(x)/f'(x) 
+		if (x !in (left, right) )
+			x = false //x = false can be checked
+			break
+		.
+	.
+	x
+.
+
+newton (sin(x), left = -2, right = 2)
+
+newton (f, x = 0, max = 20, precision = 1E-10, left = -100, right = 100) = 
+	sequence_(i = 0)^max 
+		x = a + f(x)/f'(x) 
+		if ( |f(x)| < precision) 
+			break 
+		else if (x !in (left, right) )
+			x = false
+			break
+		.
+	.
+	x
+.
+
+
+newton (f, x = 0, max = 20, precision = 1E-10, left = -100, right = 100) = 
+	for (i = 0..max )
+		x = a + f(x)/f'(x) 
+		if ( |f(x)| < precision) 
+			break 
+		else if (x !in (left, right) )
+			x = false
+			break
+		.
+	.
+	x
+.
+
+simplef (x)  = sin(3x) + 2
+
+if (2 != 0) newton(simplef)
+

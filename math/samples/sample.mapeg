@@ -1,0 +1,35 @@
+a = 4
+
+while (a > 1) {
+  a = a - 1
+}
+
+
+from peg: 
+[
+{tag : "statement", val : [{tag: "tok", val : "a"}, {tag : "tok", val : "="}, {tag : "num", val : "4"}]},
+{tag : "while", 
+  cond : [{tag: "tok", val : "a"}, {tag : "tok", val : ">"}, {tag : "num", val : "1"}],
+  body : [[{tag: "tok", val : "a"}, {tag : "tok", val : "="}, {tag: "tok", val : "a"}, {tag : "tok", val : "-"}, {tag : "num", val : "1"}]]
+}
+]
+
+While evaluating, rearranging of statments
+{type : "=", val : [{tag: "tok", val : "a"},  {tag : "num", val : "4"}]
+...
+{type : "=", val : [{tag: "tok", val : "a"}, {type : "-", val : [{tag: "tok", val : "a"},  {tag : "num", val : "1"}]}]}
+
+
+need to evaluate as operators and such are being defined. 
+
+type Complex (a, b)
+
+// :=  adds to definition
+
++ := op ( (Complex, x), (+, 90, true), (Complex, y) ) :
+  Complex(x.re + y.re, x.im + y.im)
+.
+
+a + b I  
+
+

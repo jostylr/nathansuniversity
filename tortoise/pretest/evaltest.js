@@ -49,7 +49,10 @@ module.exports.suites = {
     }, arguments);
   },
   'fun': function () {
-    return run.apply(null, arguments);
+    return run.apply({
+      //debugF: 1
+      // maxtimes: 100
+    }, arguments);
   }
 };
 

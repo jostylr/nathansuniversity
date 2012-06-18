@@ -8,8 +8,7 @@ var List = function (a) {
 		return this;
 	}
 };
-
-
+  
 var stacker = function (func, args) {
     var env   = {};
     var stack = [];

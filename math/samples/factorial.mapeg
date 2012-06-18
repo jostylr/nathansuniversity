@@ -1,0 +1,28 @@
+factorial (n) =
+	x = ( sum_(i=0)^n log(i) ) / ln(10) 
+	[a, b] = split(x, 0)
+	10^a E b
+. 
+
+factorial (n) = 
+	for (i = 0..n) 
+		j = j * i
+	. 
+.
+
+factorial (n) = 
+	if (n <= 1) 
+		1
+	else 
+		n*factorial(n-1) 
+	.
+.
+
+factorial (n) =
+	m = 1
+	while (n > 1) 
+		m = m*n
+		n = n-1
+	.
+	m
+.

@@ -52,49 +52,12 @@ var newenv = function (parent, names, values) {
   return ret;
 };
 
-var evalTort = function (statements, turtle) {
-  var cur, env, temp, i, f
-    , maxtimes = this.maxtimes || 1e6
-    , numtimes = 0
-    , stack = [] //always an array
-    , values = [[]]
-    ;
 
+var step = function (stack, env, values) {
+  var temp, i, f;
 
+  var cur = stack.pop();
 
-  stack.push.apply(stack, statements);
-
-  debugF = {
-    ret : {
-      stack: [],
-      values : [],
-      lookup : []
-    },
-    log : (this && this.hasOwnProperty('debugF')) ? console.log : function () {}
-  };
-  
-  if (this && this.hasOwnProperty('debugF'))  {
-    this.debugF = debugF;
-  }
-  
-  //flag objects
-  //var 
-  
-  //initial environment
-  env = initenv(turtle);
-  
-  turtle = env.turtle; 
-         
-  while (stack.length !== 0) {
-    
-    if (numtimes > maxtimes) {
-      throw "too many times";
-    } else {
-      numtimes += 1;
-    }
-    
-    cur = stack.pop();
-    
     debugF.log(cur);
     
     debugF.ret.stack.push(cur);
@@ -102,7 +65,7 @@ var evalTort = function (statements, turtle) {
     if (_.isNumber(cur)  ) {
       values[0].push(cur);
       debugF.ret.values.push(cur);
-      continue;
+      return env;
     }
     if (!cur.hasOwnProperty("tag") ) {
       throw "tag not present" + util.inspect(cur.tag, false, null);
@@ -113,7 +76,7 @@ var evalTort = function (statements, turtle) {
       temp = arith[cur.tag](temp[0], temp[1]);
       values[0].push(temp);
       debugF.ret.values.push(temp);
-      continue;
+      return env;
     }
 
     switch (cur.tag) {
@@ -204,6 +167,42 @@ var evalTort = function (statements, turtle) {
       default : 
         throw "unknown tag: " + cur.tag;
     }
+
+    return env;
+};
+
+var globalEnv = {};
+
+var startTurtle = function () {
+
+};
+
+var step = function ()
+
+var evalTort = function (statements, turtle) {
+  var env
+    , stack = [] //always an array
+    , values = [[]]
+    ;
+
+
+
+  stack.push.apply(stack, statements);
+
+  
+  //flag objects
+  //var 
+  
+  //initial environment
+  env = initenv(turtle);
+  
+  turtle = env.turtle; 
+         
+  while (stack.length !== 0) {
+    
+    env = step(stack, env, values);
+
+
     
   }
   
