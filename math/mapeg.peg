@@ -4,7 +4,7 @@
 
 start = 
   wsn s : statement+ wsn
-  {s.reverse(); return  s; }
+  {return  s; }
   
   
 statement = 
@@ -21,7 +21,7 @@ stEnd =
 
 block = 
   wsn lb : leftBracket wsn s: statement+ wsn rb : rightBracket ws
-  {s.reverse(); return {tag: "block", left: lb, stmnt : s, right : rb};}
+  {return {tag: "block", left: lb, stmnt : s, right : rb};}
 
 leftBracket = 
   "(" / "[" / "{" / "\(" / "\[" / "\{" / ":" [\n]
@@ -29,13 +29,14 @@ leftBracket =
 rightBracket = 
   ")" / "]" / "}" / "\)" / "\]" / "\}" / "." [\n]  
 
+// expr sucks up the ending absolute value if it is allowed in symbol
 abshelper = 
-  s: (symbol) e: expr
+  ws s: symbol  e: expr
   {return [s].concat(e);}
 
 abs = 
-  wsn "|" w : (word / block ) wsn a: abshelper? wsn "|" wsn
-  {return {tag : "abs", expr :  [w].concat(a)};}
+  wsn l : "|"+ w : (word / block ) wsn a: abshelper? wsn r : "|"+ wsn
+  {return {tag : "abs", left: l.length, right : r.length, expr :  [w].concat(a)};}
 
 
 // expressions -- no operator processing
@@ -48,22 +49,21 @@ wordws =
   {return w;}
 
 word = 
-  i : identifier
-  {return {tag: "tok", name : i}; }
+   abs 
+  / identifier
   / number
   / string
   / special
   / block
-  / abs 
   / symbol
   
 special = 
   ws "'" i :[^ \n\r\t]+ & ([ \n\r\t] / !.) ws
-  {return i.join('');}
+  {return {tag : "tok", value : i.join('')}; }
 
 symbol = 
-  !( leftBracket / rightBracket) a: [^A-Za-z0-9 \r\n\t]+
-  {return a.join('');}
+  !( leftBracket / rightBracket/ "|" ) a: [^A-Za-z0-9 \r\n\t]+
+  {return {tag : "tok", value : a.join('')} ;}
 
 string = 
   '"' str : [^"]+ '"' 
@@ -71,15 +71,25 @@ string =
 
 identifier = 
   first: [a-zA-Z] rest : [a-zA-Z0-9]*
-  {return first + rest.join("");}
+  {return {tag: "tok", value : first + rest.join("")};}
   
   
 number = 
-  n : "-" ? left : [0-9]+ "." right : [0-9]*
-  {return parseFloat(n + left.join("") + '.' + right.join("")); }  
-  / n : "-" ? left : [0-9]+ 
-  {return parseFloat(n + left.join("")); }  
+  scientific
+  / decimal
+  / integer
+
+scientific = 
+  deci : decimal "E" exp : integer
+  {return {tag : "sci", deci : deci, exp : exp};}
+
+decimal = 
+  int : integer "." right : [0-9]+
+  {return {tag: "decimal", left: int , right : right}; }  
   
+integer = 
+  n : "-" ? left : [0-9]+ 
+  {return {tag : "int", neg : (n === "-" ? true : false), value : left}; }  
 
   
 wsn = [ \n\r\t]*
