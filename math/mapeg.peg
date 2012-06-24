@@ -1,6 +1,19 @@
 // parser definition for mathpeg
 // mainly parsing block structure
 
+{
+  numparse = function (left) {
+    var numstr = left.join(''); 
+    var num = [];
+    while (numstr.length > 6 ) {
+      num.unshift(parseInt(numstr.slice(-6), 10));
+      numstr = numstr.slice(0, -6);
+    } 
+    num.unshift(parseInt(numstr, 10));
+    num.reverse();
+    return num;
+  };
+}
 
 start = 
   wsn s : statement+ wsn
@@ -20,8 +33,10 @@ stEnd =
   / & (rightBracket) 
 
 block = 
-  wsn lb : leftBracket wsn s: statement+ wsn rb : rightBracket ws
-  {return {tag: "block", left: lb, stmnt : s, right : rb};}
+  wsn lb : leftBracket wsn e: expr wsn rb : rightBracket ws
+  {return {tag: "block", left: lb, value : e, right : rb, type: "TBD" };}
+  / wsn lb : leftBracket wsn s: statement+ wsn rb : rightBracket ws
+  {return {tag: "block", left: lb, value : s, right : rb, type: "block" };}
 
 leftBracket = 
   "(" / "[" / "{" / "\(" / "\[" / "\{" / ":" [\n]
@@ -39,7 +54,7 @@ abs =
   {return {tag : "abs", left: l.length, right : r.length, expr :  [w].concat(a)};}
 
 
-// expressions -- no operator processing
+// expressions 
 expr = 
  e: wordws+
  {return e;}
@@ -53,9 +68,15 @@ word =
   / identifier
   / number
   / string
+  / terminal
   / special
   / block
   / symbol
+
+terminal = 
+  ws "''" i :[^ \n\r\t]+ & ([ \n\r\t] / !.) ws
+  {return {tag : "terminal", value : i.join('')}; }
+
   
 special = 
   ws "'" i :[^ \n\r\t]+ & ([ \n\r\t] / !.) ws
@@ -67,7 +88,7 @@ symbol =
 
 string = 
   '"' str : [^"]+ '"' 
-  { return {tag : "string", value : str.join("")} }
+  { return {tag : "string", value : str.join(""), type:"str"} }
 
 identifier = 
   first: [a-zA-Z] rest : [a-zA-Z0-9]*
@@ -80,16 +101,20 @@ number =
   / integer
 
 scientific = 
-  deci : decimal "E" exp : integer
-  {return {tag : "sci", deci : deci, exp : exp};}
+  n : "-" ? left : [0-9]+  "." right : [0-9]+ "E" exp : [0-9]+
+  {return {tag: "num", value: numparse(left.concat(right)), E : parseInt(exp.join("")) + (-1*right.length),
+    neg : (n === "-" ? true : false), type:"num"}; 
+  }  
 
 decimal = 
-  int : integer "." right : [0-9]+
-  {return {tag: "decimal", left: int , right : right}; }  
+    n : "-" ? left : [0-9]+  "." right : [0-9]+
+  {return {tag: "num", value: numparse(left.concat(right)), E : (-1*right.length),
+    neg : (n === "-" ? true : false), type:"num"}; 
+  }  
   
 integer = 
   n : "-" ? left : [0-9]+ 
-  {return {tag : "int", neg : (n === "-" ? true : false), value : left}; }  
+  { return {tag : "num", E: 0, neg : (n === "-" ? true : false), value : numparse(left), type:"num"};}  
 
   
 wsn = [ \n\r\t]*

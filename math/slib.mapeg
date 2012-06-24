@@ -1,0 +1,29 @@
+SYM(=, 10, "right")
+
+DEF (a id, =, b ANY) ANY :
+  ENV (a, b)
+.
+
+SYM(+, 50)
+
+DEF (a NUM, +, b NUM) :
+  ADD(a, b)
+.
+
+SYM(-, 50)
+
+DEF (a NUM, -, b NUM) NUM :
+  SUB(a, b)
+.
+
+SYM(*, 60)
+
+DEF (a NUM, *, b NUM) NUM :
+  MULT(a,b)
+.
+
+SYM(<, 40) 
+
+DEF (a NUM, <, b NUM) BOOL:
+  LT(a, b)
+.
