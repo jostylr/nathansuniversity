@@ -9,5 +9,5 @@ run = (function () {
     var par = parser(str);
     console.log(par);
     return et(par, new Turtle(opt));
-  }  
+  };  
 }());
